@@ -5,7 +5,7 @@ import { useDropzone } from "react-dropzone";
 
 export function ImageDropzone({
   onUploaded,
-  label = "Hero image",
+  label = "Upload image",
 }: {
   onUploaded: (url: string) => void;
   label?: string;

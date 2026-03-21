@@ -53,7 +53,7 @@ function SortableRow({
 
   return (
     <div ref={setNodeRef} style={style} className="rounded-2xl border border-neutral-200 bg-white p-4">
-      <div className="flex flex-col gap-3 md:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
           className="h-10 w-10 shrink-0 cursor-grab rounded-lg border border-neutral-200 text-neutral-400"
@@ -63,9 +63,9 @@ function SortableRow({
         >
           ::
         </button>
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-neutral-100">
+        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-neutral-100">
           {item.imageUrl ? (
-            <Image src={item.imageUrl} alt="" fill className="object-contain" sizes="96px" />
+            <Image src={item.imageUrl} alt="" fill className="object-contain" sizes="112px" />
           ) : null}
         </div>
         <div className="min-w-0 flex-1 space-y-2">

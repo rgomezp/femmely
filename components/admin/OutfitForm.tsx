@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ImageDropzone } from "./ImageDropzone";
 import { AsinLookup } from "./AsinLookup";
+import { ImageDropzone } from "./ImageDropzone";
 import { ItemSortableList, type DraftOutfitItem } from "./ItemSortableList";
 
 type Cat = { id: string; name: string };
@@ -15,8 +15,7 @@ type OutfitRow = {
   id: string;
   title: string;
   description: string;
-  heroImageUrl: string;
-  heroImageAlt: string;
+  mainImageUrl: string;
   status: "draft" | "published";
   featured: boolean;
   season: string | null;
@@ -45,8 +44,7 @@ export function OutfitForm({
   const [tags, setTags] = useState(tagsProp);
   const [title, setTitle] = useState(outfit?.title ?? "");
   const [description, setDescription] = useState(outfit?.description ?? "");
-  const [heroUrl, setHeroUrl] = useState(outfit?.heroImageUrl ?? "");
-  const [heroAlt, setHeroAlt] = useState(outfit?.heroImageAlt ?? "");
+  const [mainImageUrl, setMainImageUrl] = useState(outfit?.mainImageUrl ?? "");
   const [, setStatus] = useState<"draft" | "published">(outfit?.status ?? "draft");
   const [featured, setFeatured] = useState(outfit?.featured ?? false);
   const [season, setSeason] = useState(outfit?.season ?? "");
@@ -54,10 +52,7 @@ export function OutfitForm({
   const [sortOrder, setSortOrder] = useState(outfit?.sortOrder ?? 0);
   const [catIds, setCatIds] = useState<Set<string>>(new Set(initialCategoryIds ?? []));
   const [tagIds, setTagIds] = useState<Set<string>>(new Set(initialTagIds ?? []));
-  const [items, setItems] = useState<DraftOutfitItem[]>(
-    initialItems ??
-      [],
-  );
+  const [items, setItems] = useState<DraftOutfitItem[]>(initialItems ?? []);
   const [deletedServerIds, setDeletedServerIds] = useState<string[]>([]);
   const [newTagName, setNewTagName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -96,8 +91,10 @@ export function OutfitForm({
     setError(null);
     setSaving(true);
     try {
-      if (!heroUrl) throw new Error("Upload a hero image");
       if (!title.trim()) throw new Error("Title required");
+      if (publish && !mainImageUrl.trim()) {
+        throw new Error("Upload a main outfit image before publishing (used in browse grids)");
+      }
       const st = publish ? "published" : "draft";
 
       if (mode === "create") {
@@ -107,8 +104,7 @@ export function OutfitForm({
           body: JSON.stringify({
             title: title.trim(),
             description,
-            heroImageUrl: heroUrl,
-            heroImageAlt: heroAlt,
+            mainImageUrl,
             status: st,
             featured,
             season: season || null,
@@ -153,8 +149,7 @@ export function OutfitForm({
         body: JSON.stringify({
           title: title.trim(),
           description,
-          heroImageUrl: heroUrl,
-          heroImageAlt: heroAlt,
+          mainImageUrl,
           status: st,
           featured,
           season: season || null,
@@ -212,14 +207,14 @@ export function OutfitForm({
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <div className="flex gap-2 text-sm">
-        {[1, 2, 3, 4].map((s) => (
+        {[1, 2, 3].map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => setStep(s)}
             className={`rounded-full px-3 py-1 ${step === s ? "bg-neutral-900 text-white" : "bg-neutral-200"}`}
           >
-            {s === 1 ? "Info" : s === 2 ? "Hero" : s === 3 ? "Items" : "Review"}
+            {s === 1 ? "Info" : s === 2 ? "Items" : "Review"}
           </button>
         ))}
       </div>
@@ -236,6 +231,22 @@ export function OutfitForm({
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2"
             />
+          </div>
+          <div>
+            <p className="text-sm font-medium">Main image</p>
+            <p className="mt-1 text-xs text-neutral-500">
+              Shown on the home page, browse grids, and at the top of the outfit page. Upload a styled cover photo
+              (Vercel Blob).
+            </p>
+            {mainImageUrl ? (
+              <p className="mt-2 break-all text-xs text-neutral-500">
+                Current:{" "}
+                <a href={mainImageUrl} className="text-[#e8485c] underline">
+                  link
+                </a>
+              </p>
+            ) : null}
+            <ImageDropzone label="Upload main image" onUploaded={setMainImageUrl} />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -328,27 +339,10 @@ export function OutfitForm({
 
       {step === 2 ? (
         <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-6">
-          <h2 className="font-semibold">Hero image</h2>
-          <ImageDropzone onUploaded={setHeroUrl} />
-          {heroUrl ? (
-            <p className="break-all text-xs text-neutral-500">
-              Current: <a href={heroUrl}>{heroUrl}</a>
-            </p>
-          ) : null}
-          <div>
-            <label className="text-sm font-medium">Alt text</label>
-            <input
-              value={heroAlt}
-              onChange={(e) => setHeroAlt(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2"
-            />
-          </div>
-        </section>
-      ) : null}
-
-      {step === 3 ? (
-        <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-6">
           <h2 className="font-semibold">Items</h2>
+          <p className="text-sm text-neutral-600">
+            Add products by ASIN. Amazon images appear in the outfit sidebar and on item detail pages.
+          </p>
           <AsinLookup
             onProduct={(p) =>
               setItems((prev) => [
@@ -382,7 +376,7 @@ export function OutfitForm({
         </section>
       ) : null}
 
-      {step === 4 ? (
+      {step === 3 ? (
         <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-6">
           <h2 className="font-semibold">Review</h2>
           <p className="text-sm text-neutral-600">
@@ -412,10 +406,10 @@ export function OutfitForm({
         </section>
       ) : null}
 
-      {step < 4 ? (
+      {step < 3 ? (
         <button
           type="button"
-          onClick={() => setStep((s) => Math.min(4, s + 1))}
+          onClick={() => setStep((s) => Math.min(3, s + 1))}
           className="rounded-xl bg-neutral-900 px-4 py-2 text-sm text-white"
         >
           Next

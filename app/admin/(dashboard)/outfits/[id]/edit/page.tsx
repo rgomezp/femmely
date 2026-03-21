@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
+import { DeleteOutfitButton } from "@/components/admin/DeleteOutfitButton";
 import { OutfitForm } from "@/components/admin/OutfitForm";
 import { db, outfits } from "@/lib/db";
 import {
@@ -52,6 +53,7 @@ export default async function EditOutfitPage({ params }: Props) {
         categories={categories}
         tags={tags}
       />
+      <DeleteOutfitButton outfitId={outfit.id} title={outfit.title} />
     </div>
   );
 }

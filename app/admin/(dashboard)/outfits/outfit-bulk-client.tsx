@@ -21,7 +21,7 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
 
   async function bulkDelete() {
     if (sel.size === 0) return;
-    if (!confirm(`Delete ${sel.size} outfit(s)?`)) return;
+    if (!confirm(`Delete ${sel.size} outfit(s)? Board photos in Blob will be removed.`)) return;
     setBusy(true);
     try {
       const res = await fetch("/api/admin/outfits", {
@@ -31,6 +31,23 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
       });
       if (!res.ok) throw new Error();
       setSel(new Set());
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteOne(id: string, title: string) {
+    if (!confirm(`Delete “${title}”? This removes the outfit and any board photos stored in Blob.`)) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/outfits/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setSel((s) => {
+        const n = new Set(s);
+        n.delete(id);
+        return n;
+      });
       router.refresh();
     } finally {
       setBusy(false);
@@ -106,6 +123,14 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
                       onClick={() => quickPut(o.id, { featured: !o.featured })}
                     >
                       Toggle feature
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      className="text-red-600"
+                      onClick={() => deleteOne(o.id, o.title)}
+                    >
+                      Delete
                     </button>
                   </div>
                 </td>
