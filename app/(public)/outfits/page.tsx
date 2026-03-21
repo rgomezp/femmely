@@ -34,7 +34,7 @@ export default async function OutfitsPage({ searchParams }: Props) {
     <div className="mx-auto max-w-[1400px] px-4 py-10 md:px-6">
       <h1 className="font-headline text-2xl font-bold text-on-surface md:text-4xl">All outfits</h1>
       <p className="font-body mt-2 text-lg text-on-surface-variant leading-relaxed">
-        Filter and browse curated boards. Every look links to Amazon with clear disclosure.
+        Filter and browse curated boards.
       </p>
 
       <Suspense fallback={null}>
