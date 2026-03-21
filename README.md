@@ -25,13 +25,17 @@ Pinterest-style fashion discovery with Amazon PA-API product data, Vercel Postgr
    yarn db:push
    ```
 
-   (Uses `DATABASE_URL` from `.env.local`.)
+   (`drizzle.config.ts` loads `.env` then `.env.local`, so `DATABASE_URL` is picked up the same way as Next.js.)
 
-4. **Admin password** — generate a bcrypt hash and set `ADMIN_PASSWORD_HASH`:
+4. **Admin password** — Next.js expands `$VAR` inside `.env` values. Bcrypt hashes look like `$2a$10$…`, so a plain `ADMIN_PASSWORD_HASH` is often **corrupted** and login always fails. **Use base64** (recommended):
 
    ```bash
-   node -e "const b=require('bcryptjs');console.log(b.hashSync('your-password',10))"
+   yarn admin:hash-b64 your-password
    ```
+
+   Copy the printed `ADMIN_PASSWORD_HASH_B64=…` line into `.env.local` and clear `ADMIN_PASSWORD_HASH` if it was set.
+
+   Alternative: put the raw hash in `.env.local` with **every** `$` escaped as `\$` (e.g. `\$2a\$10\$…`).
 
 5. **Run dev**
 
@@ -53,14 +57,27 @@ Pinterest-style fashion discovery with Amazon PA-API product data, Vercel Postgr
 | `yarn db:push` | Apply schema (`drizzle-kit push`) |
 | `yarn db:generate` | Generate SQL migrations   |
 | `yarn db:studio`   | Drizzle Studio            |
+| `yarn admin:hash-b64 <pwd>` | Base64 bcrypt hash for `ADMIN_PASSWORD_HASH_B64` |
 
 ## Vercel deployment
 
 1. Connect the Git repo to Vercel.
 2. Create **Vercel Postgres** and **Blob** (optional but recommended for uploads).
-3. Set all env vars from `.env.example` in the Vercel project (including `NEXTAUTH_URL` = `https://femmely.club` or your domain).
+3. Set all env vars from `.env.example` in the Vercel project (including `NEXTAUTH_URL` = `https://femmely.club` or your domain). Use **`ADMIN_PASSWORD_HASH_B64`** for production too so the hash is not mangled by `$` expansion.
 4. Run `yarn db:push` against production `DATABASE_URL` once (locally with prod URL or via Vercel CLI).
 5. Add your **Vercel Blob** host to [`next.config.ts`](next.config.ts) under `images.remotePatterns` if `next/image` should optimize hero uploads (pattern depends on your blob hostname).
+
+## Amazon PA-API
+You only need this for ASIN lookup in the admin. You can leave these blank until your Associates / PA-API access is ready.
+
+When ready, from Amazon’s PA-API / Associates setup:
+```sh
+AMAZON_ACCESS_KEY=...
+AMAZON_SECRET_KEY=...
+AMAZON_PARTNER_TAG=yourstore-20
+AMAZON_HOST=webservices.amazon.com
+AMAZON_REGION=us-east-1
+```
 
 ## Project map
 

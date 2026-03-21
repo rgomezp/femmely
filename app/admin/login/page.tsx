@@ -1,4 +1,5 @@
 import { auth, signIn } from "@/lib/auth";
+import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
 export default async function AdminLoginPage({
@@ -18,11 +19,19 @@ export default async function AdminLoginPage({
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const cb = (formData.get("callbackUrl") as string) || "/admin";
-    const res = await signIn("credentials", { email, password, redirect: false });
-    if (!res || res.error || !res.ok) {
-      redirect(`/admin/login?error=1&callbackUrl=${encodeURIComponent(cb)}`);
+    const errUrl = `/admin/login?error=1&callbackUrl=${encodeURIComponent(cb)}`;
+    try {
+      const res = await signIn("credentials", { email, password, redirect: false });
+      if (!res || res.error || !res.ok) {
+        redirect(errUrl);
+      }
+      redirect(cb);
+    } catch (e) {
+      if (e instanceof AuthError && e.type === "CredentialsSignin") {
+        redirect(errUrl);
+      }
+      throw e;
     }
-    redirect(cb);
   }
 
   return (

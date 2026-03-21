@@ -1,9 +1,10 @@
+import { adminPasswordHashFromEnv } from "@/lib/admin-password";
 import { amazonConfigured } from "@/lib/amazon";
 
 export default function AdminSettingsPage() {
   const dbOk = Boolean(process.env.DATABASE_URL);
   const authOk = Boolean(process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET);
-  const adminOk = Boolean(process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD_HASH);
+  const adminOk = Boolean(process.env.ADMIN_EMAIL?.trim() && adminPasswordHashFromEnv());
   const blobOk = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
   return (
@@ -23,7 +24,7 @@ export default function AdminSettingsPage() {
           <span className={authOk ? "text-emerald-600" : "text-red-600"}>{authOk ? "Set" : "Missing"}</span>
         </li>
         <li className="flex justify-between">
-          <span>ADMIN_EMAIL + ADMIN_PASSWORD_HASH</span>
+          <span>ADMIN_EMAIL + ADMIN_PASSWORD_HASH / ADMIN_PASSWORD_HASH_B64</span>
           <span className={adminOk ? "text-emerald-600" : "text-red-600"}>{adminOk ? "Set" : "Missing"}</span>
         </li>
         <li className="flex justify-between">
