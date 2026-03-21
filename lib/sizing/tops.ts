@@ -8,9 +8,9 @@ export const topsSizing: DirectSizeMap = {
     { source: "XS", target: "S - M" },
     { source: "S", target: "M - L" },
     { source: "M", target: "L - XL" },
-    { source: "L", target: "XL - 1X" },
-    { source: "XL", target: "1X - 2X" },
-    { source: "2XL", target: "2X - 3X" },
-    { source: "3XL", target: "3X - 4X" },
+    { source: "L", target: "XL - XXL" },
+    { source: "XL", target: "XXL - 1X" },
+    { source: "2XL", target: "1X - 2X" },
+    { source: "3XL", target: "2X - 3X" },
   ],
 };

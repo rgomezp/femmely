@@ -1,23 +1,39 @@
-import type { MeasurementBasedMap } from "./types";
+import type { CalculatedBraMap } from "./types";
 
-/** Underbust → band; cup from (overbust − underbust) inches. */
-export const brasSizing: MeasurementBasedMap = {
-  type: "measurement",
+export const brasSizing: CalculatedBraMap = {
+  type: "calculated-bra",
   inputs: [
     { key: "underbust", label: "Underbust (inches)", min: 28, max: 48, step: 0.5 },
     { key: "overbust", label: "Overbust / bust (inches)", min: 30, max: 54, step: 0.5 },
   ],
-  ranges: [
-    { size: "32A", conditions: [{ key: "underbust", min: 28, max: 30 }, { key: "overbust", min: 31, max: 33 }] },
-    { size: "32B", conditions: [{ key: "underbust", min: 28, max: 30 }, { key: "overbust", min: 33, max: 34 }] },
-    { size: "34B", conditions: [{ key: "underbust", min: 30, max: 32 }, { key: "overbust", min: 34, max: 36 }] },
-    { size: "34C", conditions: [{ key: "underbust", min: 30, max: 32 }, { key: "overbust", min: 36, max: 37 }] },
-    { size: "36C", conditions: [{ key: "underbust", min: 32, max: 34 }, { key: "overbust", min: 37, max: 39 }] },
-    { size: "36D", conditions: [{ key: "underbust", min: 32, max: 34 }, { key: "overbust", min: 39, max: 40 }] },
-    { size: "38D", conditions: [{ key: "underbust", min: 34, max: 36 }, { key: "overbust", min: 40, max: 42 }] },
-    { size: "38DD", conditions: [{ key: "underbust", min: 34, max: 36 }, { key: "overbust", min: 42, max: 43 }] },
-    { size: "40DD", conditions: [{ key: "underbust", min: 36, max: 38 }, { key: "overbust", min: 43, max: 45 }] },
-    { size: "42DD", conditions: [{ key: "underbust", min: 38, max: 40 }, { key: "overbust", min: 45, max: 47 }] },
-    { size: "44DDD", conditions: [{ key: "underbust", min: 40, max: 42 }, { key: "overbust", min: 47, max: 49 }] },
-  ],
 };
+
+/** US band: underbust rounded to nearest even inch. Cup from (overbust − underbust). */
+export function computeBraSize(
+  underbust: number,
+  overbust: number,
+): string | null {
+  if (Number.isNaN(underbust) || Number.isNaN(overbust)) return null;
+  if (overbust <= underbust) return null;
+
+  const band = Math.round(underbust / 2) * 2;
+  if (band < 28 || band > 54) return null;
+
+  const diff = overbust - underbust;
+  const cup = cupFromDifference(diff);
+  if (!cup) return null;
+
+  return `${band}${cup}`;
+}
+
+function cupFromDifference(diff: number): string | null {
+  if (diff < 0.5) return null;
+  if (diff < 1) return "AA";
+  if (diff < 2) return "A";
+  if (diff < 3) return "B";
+  if (diff < 4) return "C";
+  if (diff < 5) return "D";
+  if (diff < 6) return "DD";
+  if (diff < 7) return "DDD";
+  return "DDD+";
+}

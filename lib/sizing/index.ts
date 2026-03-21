@@ -14,6 +14,7 @@ import { underwearSizing } from "./underwear";
 
 export * from "./types";
 export * from "./helpers";
+export { computeBraSize } from "./bras";
 
 export const converterMap: Record<GarmentCategory, SizeConverter> = {
   shoes: shoesSizing,

@@ -2,7 +2,9 @@
 
 import type { GarmentCategory } from "@/lib/sizing/types";
 import { converterMap } from "@/lib/sizing";
+import { BraSizeConverter } from "./BraSizeConverter";
 import { DirectSizeConverter } from "./DirectSizeConverter";
+import { HosieryConverter } from "./HosieryConverter";
 import { MeasurementConverter } from "./MeasurementConverter";
 
 export function SizeTranslator({
@@ -16,6 +18,12 @@ export function SizeTranslator({
 
   if (conv.type === "direct") {
     return <DirectSizeConverter categoryKey={cat} map={conv} />;
+  }
+  if (conv.type === "calculated-bra") {
+    return <BraSizeConverter categoryKey={cat} map={conv} />;
+  }
+  if (conv.type === "hosiery-matrix") {
+    return <HosieryConverter categoryKey={cat} map={conv} />;
   }
   return <MeasurementConverter categoryKey={cat} map={conv} />;
 }

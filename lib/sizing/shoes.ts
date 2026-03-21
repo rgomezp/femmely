@@ -21,5 +21,7 @@ export const shoesSizing: DirectSizeMap = {
     { source: "11.5", target: "13 - 13.5", eu: "46 - 46.5" },
     { source: "12", target: "13.5 - 14", eu: "46.5 - 47" },
     { source: "13", target: "14.5 - 15", eu: "48 - 49" },
+    { source: "14", target: "15.5 - 16.5", eu: "50 - 51" },
+    { source: "15", target: "16.5 - 17.5", eu: "52 - 53" },
   ],
 };

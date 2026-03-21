@@ -42,7 +42,41 @@ export interface MeasurementBasedMap {
   }[];
 }
 
-export type SizeConverter = DirectSizeMap | MeasurementBasedMap;
+/** Band + cup from underbust/overbust via `computeBraSize` (see bras.ts). */
+export interface CalculatedBraMap {
+  type: "calculated-bra";
+  inputs: {
+    key: string;
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+  }[];
+}
+
+/**
+ * Height/weight bins — non-overlapping: value in [edges[i], edges[i+1]).
+ * `cells[row][col]` matches height row × weight column.
+ */
+export interface HosieryMatrixMap {
+  type: "hosiery-matrix";
+  inputs: {
+    key: string;
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+  }[];
+  heightEdges: number[];
+  weightEdges: number[];
+  cells: string[][];
+}
+
+export type SizeConverter =
+  | DirectSizeMap
+  | MeasurementBasedMap
+  | CalculatedBraMap
+  | HosieryMatrixMap;
 
 export const GARMENT_CATEGORY_LABELS: Record<GarmentCategory, string> = {
   shoes: "Shoes",

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { MeasurementBasedMap } from "@/lib/sizing/types";
-import { measurementResult } from "@/lib/sizing/helpers";
+import type { CalculatedBraMap } from "@/lib/sizing/types";
+import { computeBraSize } from "@/lib/sizing/bras";
 
 const LS_KEY = "femmely:size-prefs";
 
@@ -28,12 +28,12 @@ function writeMeas(category: string, meas: Record<string, number>) {
   }
 }
 
-export function MeasurementConverter({
+export function BraSizeConverter({
   categoryKey,
   map,
 }: {
   categoryKey: string;
-  map: MeasurementBasedMap;
+  map: CalculatedBraMap;
 }) {
   const initial = useMemo(() => {
     const o: Record<string, number> = {};
@@ -58,7 +58,12 @@ export function MeasurementConverter({
     }
   }, [categoryKey]);
 
-  const result = measurementResult(map, values);
+  const u = values.underbust;
+  const o = values.overbust;
+  const size =
+    u !== undefined && o !== undefined && !Number.isNaN(u) && !Number.isNaN(o)
+      ? computeBraSize(u, o)
+      : null;
 
   const update = (key: string, n: number) => {
     setValues((prev) => {
@@ -88,27 +93,26 @@ export function MeasurementConverter({
         </div>
       ))}
       <div
-        className={`rounded-xl border p-6 transition-all ${result ? "border-primary/20 bg-primary-fixed" : "border-outline-variant bg-surface-container-low"}`}
+        className={`rounded-xl border p-6 transition-all ${size ? "border-primary/20 bg-primary-fixed" : "border-outline-variant bg-surface-container-low"}`}
       >
-        {result ? (
+        {size ? (
           <>
-            <p className="font-body text-sm text-on-surface-variant">Your recommended women&apos;s size</p>
-            <p className="font-headline mt-2 text-center text-3xl text-primary">{result.size}</p>
-            {!result.exact ? (
-              <p className="mt-3 text-center font-body text-xs text-on-surface-variant">
-                Best estimate — your proportions don&apos;t sit fully inside one band; we picked the
-                closest match.
-              </p>
-            ) : null}
+            <p className="font-body text-sm text-on-surface-variant">Estimated US bra size</p>
+            <p className="font-headline mt-2 text-center text-3xl text-primary">{size}</p>
+            <p className="mt-3 font-body text-xs text-on-surface-variant">
+              Band is your underbust rounded to the nearest even inch. Cup is based on the difference
+              between overbust and underbust. Fit varies by brand and style.
+            </p>
           </>
         ) : (
           <p className="font-body text-sm text-on-surface-variant">
-            Adjust measurements to see a match. If you fall between chart bands, size up.
+            Set overbust above underbust to estimate a size. Very small or large differences may fall
+            outside this simplified chart.
           </p>
         )}
       </div>
       <p className="font-body text-xs text-on-surface-variant">
-        Sizes vary by brand. When in between sizes, we recommend sizing up.
+        For the best fit, consider a professional fitting — especially for full-cup or sports styles.
       </p>
     </div>
   );

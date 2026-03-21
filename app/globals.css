@@ -7,8 +7,9 @@
   --color-on-primary: #ffffff;
   --color-primary-container: #bd9085;
   --color-on-primary-container: #492a22;
-  --color-primary-fixed: #ffdad2;
-  --color-primary-fixed-dim: #edbbb0;
+  /* Warm neutral highlight — kept distinct from error-container (#ffdad6) */
+  --color-primary-fixed: #ede6e2;
+  --color-primary-fixed-dim: #ddd5d1;
   --color-on-primary-fixed: #2f140d;
   --color-on-primary-fixed-variant: #613e36;
   --color-inverse-primary: #edbbb0;

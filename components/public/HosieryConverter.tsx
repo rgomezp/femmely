@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { MeasurementBasedMap } from "@/lib/sizing/types";
-import { measurementResult } from "@/lib/sizing/helpers";
+import type { HosieryMatrixMap } from "@/lib/sizing/types";
+import { hosieryMatrixResult } from "@/lib/sizing/helpers";
 
 const LS_KEY = "femmely:size-prefs";
 
@@ -28,12 +28,12 @@ function writeMeas(category: string, meas: Record<string, number>) {
   }
 }
 
-export function MeasurementConverter({
+export function HosieryConverter({
   categoryKey,
   map,
 }: {
   categoryKey: string;
-  map: MeasurementBasedMap;
+  map: HosieryMatrixMap;
 }) {
   const initial = useMemo(() => {
     const o: Record<string, number> = {};
@@ -58,7 +58,7 @@ export function MeasurementConverter({
     }
   }, [categoryKey]);
 
-  const result = measurementResult(map, values);
+  const size = hosieryMatrixResult(map, values);
 
   const update = (key: string, n: number) => {
     setValues((prev) => {
@@ -88,27 +88,22 @@ export function MeasurementConverter({
         </div>
       ))}
       <div
-        className={`rounded-xl border p-6 transition-all ${result ? "border-primary/20 bg-primary-fixed" : "border-outline-variant bg-surface-container-low"}`}
+        className={`rounded-xl border p-6 transition-all ${size ? "border-primary/20 bg-primary-fixed" : "border-outline-variant bg-surface-container-low"}`}
       >
-        {result ? (
+        {size ? (
           <>
-            <p className="font-body text-sm text-on-surface-variant">Your recommended women&apos;s size</p>
-            <p className="font-headline mt-2 text-center text-3xl text-primary">{result.size}</p>
-            {!result.exact ? (
-              <p className="mt-3 text-center font-body text-xs text-on-surface-variant">
-                Best estimate — your proportions don&apos;t sit fully inside one band; we picked the
-                closest match.
-              </p>
-            ) : null}
+            <p className="font-body text-sm text-on-surface-variant">Suggested letter size</p>
+            <p className="font-headline mt-2 text-center text-3xl text-primary">{size}</p>
           </>
         ) : (
           <p className="font-body text-sm text-on-surface-variant">
-            Adjust measurements to see a match. If you fall between chart bands, size up.
+            Adjust height and weight to match a size band.
           </p>
         )}
       </div>
       <p className="font-body text-xs text-on-surface-variant">
-        Sizes vary by brand. When in between sizes, we recommend sizing up.
+        Hosiery brands use a height × weight matrix — each cell is distinct, so you get one clear
+        letter. Queen (Q) often fits taller or fuller figures; check the brand chart when unsure.
       </p>
     </div>
   );
