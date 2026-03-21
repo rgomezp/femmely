@@ -1,7 +1,10 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+
+const MAX_BYTES = 20 * 1024 * 1024;
 
 export function ImageDropzone({
   onUploaded,
@@ -20,12 +23,19 @@ export function ImageDropzone({
       setError(null);
       setUploading(true);
       try {
-        const fd = new FormData();
-        fd.set("file", file);
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Upload failed");
-        onUploaded(data.url);
+        if (file.size > MAX_BYTES) {
+          throw new Error(`Max size ${Math.round(MAX_BYTES / (1024 * 1024))}MB`);
+        }
+        const ext =
+          file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+        const pathname = `outfits/${crypto.randomUUID()}/${Date.now()}.${ext}`;
+        const blob = await upload(pathname, file, {
+          access: "public",
+          handleUploadUrl: "/api/admin/upload",
+          contentType: file.type,
+          multipart: file.size > 4 * 1024 * 1024,
+        });
+        onUploaded(blob.url);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Upload failed");
       } finally {
@@ -52,7 +62,11 @@ export function ImageDropzone({
         }`}
       >
         <input {...getInputProps()} />
-        {uploading ? <p>Uploading…</p> : <p>Drop an image here, or click to browse (max 5MB)</p>}
+        {uploading ? (
+          <p>Uploading…</p>
+        ) : (
+          <p>Drop an image here, or click to browse (JPEG, PNG, WebP — up to 20MB)</p>
+        )}
       </div>
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
     </div>
