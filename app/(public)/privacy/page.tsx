@@ -13,20 +13,11 @@ export default function PrivacyPage() {
       <h1 className="font-headline text-4xl text-on-surface md:text-5xl">Privacy policy</h1>
       <div className="mt-6 space-y-4 font-body text-on-surface-variant">
         <p>
-          We collect only what is needed to run the site. Admin authentication uses secure sessions. Public pages do
-          not require an account.
-        </p>
-        <p>
-          If you use contact or newsletter features in the future, we will describe what is stored and how to opt out.
-          Currently, this MVP does not include user accounts on the public site.
+          We collect only what is needed to run the site. Public pages do not require an account.
         </p>
         <p>
           Affiliate links go to Amazon.com. Amazon&apos;s privacy policy applies when you leave our site. We do not
           sell your personal information.
-        </p>
-        <p>
-          For questions, contact the operator listed on the About page or your hosting provider&apos;s support channel
-          for this deployment.
         </p>
       </div>
     </div>

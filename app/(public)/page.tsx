@@ -84,8 +84,7 @@ export default async function HomePage() {
               <p className="font-label text-[10px] uppercase tracking-widest text-primary">Precision Styling</p>
               <h2 className="font-headline mt-3 text-4xl text-on-surface">Find your fit with confidence</h2>
               <p className="font-body mt-4 text-lg leading-relaxed text-on-surface-variant">
-                Practical men&apos;s-to-women&apos;s sizing starting points for shoes, apparel, and more. Not a
-                substitute for trying things on—always check each brand&apos;s chart.
+                Practical men&apos;s-to-women&apos;s sizing starting points for shoes, apparel, and more.
               </p>
               <Link
                 href="/size-guide"
@@ -96,7 +95,7 @@ export default async function HomePage() {
             </div>
             <div className="relative w-full flex-1 overflow-hidden rounded-xl md:min-h-[280px]">
               <Image
-                src="https://images.unsplash.com/photo-1558171813-4c088753af8f?auto=format&fit=crop&w=900&q=80"
+                src="https://images.pexels.com/photos/36347508/pexels-photo-36347508.jpeg"
                 alt=""
                 width={900}
                 height={600}
