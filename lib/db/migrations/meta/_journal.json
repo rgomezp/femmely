@@ -8,6 +8,20 @@
       "when": 1774052928676,
       "tag": "0000_new_scourge",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774066314874,
+      "tag": "0001_pinterest_pins",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774067468562,
+      "tag": "0002_outfit_main_image",
+      "breakpoints": true
     }
   ]
 }

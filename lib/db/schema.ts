@@ -20,8 +20,8 @@ export const outfits = pgTable(
     title: varchar("title", { length: 255 }).notNull(),
     slug: varchar("slug", { length: 255 }).notNull().unique(),
     description: text("description").notNull().default(""),
-    heroImageUrl: text("hero_image_url").notNull(),
-    heroImageAlt: varchar("hero_image_alt", { length: 255 }).notNull().default(""),
+    /** Admin-uploaded cover image for masonry grids (Vercel Blob URL). */
+    mainImageUrl: text("main_image_url").notNull().default(""),
     status: outfitStatusEnum("status").notNull().default("draft"),
     featured: boolean("featured").notNull().default(false),
     season: varchar("season", { length: 50 }),
