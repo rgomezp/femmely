@@ -14,6 +14,8 @@ export type ItemDisplay = {
   id: string;
   title: string;
   imageUrl: string;
+  /** Amazon product image (same as imageUrl; used for detail hero / OG). */
+  primaryImageUrl: string;
   affiliateUrl: string;
   priceCents: number | null;
   currency: string;
@@ -36,8 +38,8 @@ export function ItemCard({ item }: { item: ItemDisplay }) {
   ) : null;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-[12px] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-      <div className="relative aspect-square w-full bg-[var(--color-bg)]">
+    <article className="flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-card">
+      <div className="relative aspect-square w-full bg-surface-container">
         <Image
           src={item.imageUrl}
           alt={item.title}
@@ -47,19 +49,15 @@ export function ItemCard({ item }: { item: ItemDisplay }) {
         />
       </div>
       <div className="flex flex-1 flex-col gap-3 p-4">
-        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent)]">
-          {item.displayLabel}
-        </span>
-        <h3 className="font-semibold leading-snug text-[var(--color-text-primary)]">{item.title}</h3>
-        <p className="text-lg font-medium text-[var(--color-text-primary)]">
-          {formatPrice(item.priceCents, item.currency)}
-        </p>
+        <span className="font-label text-[10px] uppercase tracking-widest text-primary">{item.displayLabel}</span>
+        <h3 className="font-headline leading-snug text-on-surface">{item.title}</h3>
+        <p className="font-headline text-lg text-on-surface">{formatPrice(item.priceCents, item.currency)}</p>
         <AffiliateDisclosure />
         <Link
           href={item.affiliateUrl}
           target="_blank"
           rel="noopener noreferrer sponsored"
-          className="flex min-h-11 w-full items-center justify-center rounded-[12px] bg-[var(--color-accent)] px-4 text-center text-sm font-semibold text-white transition hover:opacity-90"
+          className="font-label flex min-h-11 w-full items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-container px-4 text-center text-xs uppercase tracking-widest text-on-primary shadow-lg transition hover:opacity-90"
         >
           Shop on Amazon
         </Link>
@@ -67,7 +65,7 @@ export function ItemCard({ item }: { item: ItemDisplay }) {
           <>
             <button
               type="button"
-              className="md:hidden flex min-h-11 w-full items-center justify-center rounded-[12px] border border-[var(--color-border-secondary)] bg-[var(--color-accent-secondary)]/10 px-4 text-sm font-semibold text-[var(--color-accent-secondary)]"
+              className="font-label flex min-h-11 w-full items-center justify-center rounded-full border border-outline bg-surface-container-low px-4 text-xs uppercase tracking-widest text-primary md:hidden"
               onClick={() => setOpen(true)}
             >
               Find your size
@@ -76,12 +74,10 @@ export function ItemCard({ item }: { item: ItemDisplay }) {
               {translator}
             </BottomSheet>
             <div className="hidden md:block">
-              <details className="rounded-xl border border-[var(--color-border)] p-3">
-                <summary className="cursor-pointer text-sm font-semibold text-[var(--color-accent-secondary)]">
-                  Find your size
-                </summary>
+              <div className="rounded-xl bg-surface-container-low p-4">
+                <p className="font-label text-[10px] uppercase tracking-widest text-primary">Find your size</p>
                 <div className="mt-3">{translator}</div>
-              </details>
+              </div>
             </div>
           </>
         ) : null}

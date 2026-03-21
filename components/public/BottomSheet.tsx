@@ -32,12 +32,12 @@ export function BottomSheet({
         aria-label="Close"
         onClick={onClose}
       />
-      <div className="absolute inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl">
-        <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{title}</h2>
+      <div className="absolute inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl border border-outline-variant bg-surface-container-lowest shadow-xl">
+        <div className="flex items-center justify-between border-b border-outline-variant px-4 py-3">
+          <h2 className="font-headline text-lg text-on-surface">{title}</h2>
           <button
             type="button"
-            className="min-h-11 min-w-11 rounded-xl text-xl text-[var(--color-text-secondary)]"
+            className="min-h-11 min-w-11 rounded-xl text-xl text-on-surface-variant"
             onClick={onClose}
             aria-label="Close"
           >

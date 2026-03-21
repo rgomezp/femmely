@@ -3,9 +3,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ItemCard } from "@/components/public/ItemCard";
 import { AffiliateDisclosure } from "@/components/public/AffiliateDisclosure";
+import { BoardItemCard } from "@/components/public/BoardItemCard";
 import { OutfitCard } from "@/components/public/OutfitCard";
+import { MasonryGrid } from "@/components/public/MasonryGrid";
 import { getCachedAmazonItem } from "@/lib/amazon";
 import { mergeItemDisplay } from "@/lib/merge-product";
 import {
@@ -40,6 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const outfit = await getPublishedOutfitBySlug(slug);
     if (!outfit) return { title: "Outfit not found" };
+    const ogImage = outfit.mainImageUrl?.trim() || undefined;
     const url = absoluteUrl(`/outfits/${slug}`);
     return {
       title: outfit.title,
@@ -49,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: outfit.title,
         description: outfit.description.slice(0, 200),
         url,
-        images: outfit.heroImageUrl ? [{ url: outfit.heroImageUrl, alt: outfit.heroImageAlt }] : undefined,
+        images: ogImage ? [{ url: ogImage, alt: outfit.title }] : undefined,
       },
     };
   } catch {
@@ -68,8 +70,8 @@ export default async function OutfitPage({ params }: Props) {
   if (!outfit) {
     return (
       <div className="mx-auto max-w-xl px-4 py-20 text-center">
-        <h1 className="text-xl font-semibold">Outfit not found</h1>
-        <Link href="/outfits" className="mt-4 inline-block text-[var(--color-accent)]">
+        <h1 className="font-headline text-xl text-on-surface">Outfit not found</h1>
+        <Link href="/outfits" className="mt-4 inline-block font-body text-primary transition-opacity hover:opacity-80">
           Back to outfits
         </Link>
       </div>
@@ -84,13 +86,6 @@ export default async function OutfitPage({ params }: Props) {
 
   const liveList = await Promise.all(items.map((i) => getCachedAmazonItem(i.asin)));
   const displayItems = items.map((item, idx) => mergeItemDisplay(item, liveList[idx]));
-
-  const grouped = new Map<string, typeof displayItems>();
-  for (const it of displayItems) {
-    const k = it.displayLabel || "Items";
-    if (!grouped.has(k)) grouped.set(k, []);
-    grouped.get(k)!.push(it);
-  }
 
   const categoryIds = cats.map((c) => c.category.id);
   const tagIds = tgs.map((t) => t.tag.id);
@@ -120,62 +115,47 @@ export default async function OutfitPage({ params }: Props) {
         ],
       },
       {
-        "@type": "ImageObject",
-        contentUrl: outfit.heroImageUrl,
-        name: outfit.heroImageAlt || outfit.title,
+        "@type": "ItemList",
+        name: outfit.title,
+        itemListElement: displayItems.map((it, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: it.title,
+          url: absoluteUrl(`/outfits/${slug}/${it.id}`),
+        })),
       },
-      ...displayItems.map((it) => ({
-        "@type": "Product",
-        name: it.title,
-        image: it.imageUrl,
-        offers: it.priceCents
-          ? {
-              "@type": "Offer",
-              priceCurrency: it.currency,
-              price: (it.priceCents / 100).toFixed(2),
-              url: it.affiliateUrl,
-            }
-          : undefined,
-      })),
     ],
   };
 
   return (
     <article>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="relative aspect-[16/10] w-full bg-[var(--color-bg)] md:aspect-[21/9]">
-        <Image
-          src={outfit.heroImageUrl}
-          alt={outfit.heroImageAlt || outfit.title}
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-      </div>
-      <div className="mx-auto max-w-[1100px] px-4 py-10 md:px-6">
-        <nav className="text-sm text-[var(--color-text-secondary)]">
-          <Link href="/" className="hover:text-[var(--color-accent)]">
+      <div className="mx-auto max-w-[1400px] px-4 py-10 md:px-6">
+        <nav className="font-body text-sm text-on-surface-variant">
+          <Link href="/" className="transition-opacity hover:text-primary hover:opacity-80">
             Home
           </Link>
           <span className="mx-2">/</span>
-          <Link href="/outfits" className="hover:text-[var(--color-accent)]">
+          <Link href="/outfits" className="transition-opacity hover:text-primary hover:opacity-80">
             Outfits
           </Link>
           <span className="mx-2">/</span>
-          <span className="text-[var(--color-text-primary)]">{outfit.title}</span>
+          <span className="text-on-surface">{outfit.title}</span>
         </nav>
-        <h1 className="mt-4 text-3xl font-bold text-[var(--color-text-primary)]">{outfit.title}</h1>
-        <div className="mt-3 flex flex-wrap gap-2 text-sm text-[var(--color-text-secondary)]">
-          {outfit.season ? <span className="rounded-lg bg-[var(--color-bg)] px-2 py-1">{outfit.season}</span> : null}
+
+        <h1 className="font-headline mt-4 text-3xl font-bold text-on-surface md:text-4xl">{outfit.title}</h1>
+        <div className="mt-3 flex flex-wrap gap-2 font-body text-sm text-on-surface-variant">
+          {outfit.season ? (
+            <span className="rounded-lg bg-surface-container px-2 py-1">{outfit.season}</span>
+          ) : null}
           {outfit.occasion ? (
-            <span className="rounded-lg bg-[var(--color-bg)] px-2 py-1">{outfit.occasion}</span>
+            <span className="rounded-lg bg-surface-container px-2 py-1">{outfit.occasion}</span>
           ) : null}
           {cats.map(({ category }) => (
             <Link
               key={category.id}
               href={`/category/${category.slug}`}
-              className="rounded-lg bg-[var(--color-accent)]/10 px-2 py-1 text-[var(--color-accent)]"
+              className="rounded-lg bg-primary/10 px-2 py-1 text-primary"
             >
               {category.name}
             </Link>
@@ -184,39 +164,69 @@ export default async function OutfitPage({ params }: Props) {
             <Link
               key={tag.id}
               href={`/tag/${tag.slug}`}
-              className="rounded-lg bg-[var(--color-accent-secondary)]/10 px-2 py-1 text-[var(--color-accent-secondary)]"
+              className="rounded-lg bg-secondary-container px-2 py-1 text-secondary"
             >
               #{tag.name}
             </Link>
           ))}
         </div>
+
+        {outfit.mainImageUrl ? (
+          <div className="relative mt-8 aspect-[4/3] w-full max-w-3xl overflow-hidden rounded-xl bg-surface-container shadow-card">
+            <Image
+              src={outfit.mainImageUrl}
+              alt={outfit.title}
+              fill
+              priority
+              className="object-contain"
+              sizes="(max-width: 1280px) 100vw, 800px"
+            />
+          </div>
+        ) : null}
+
         {outfit.description ? (
-          <div className="prose-description mt-6 max-w-3xl">
+          <div className="prose-description mt-8 max-w-3xl">
             <Markdown remarkPlugins={[remarkGfm]}>{outfit.description}</Markdown>
           </div>
         ) : null}
-        <div className="mt-8">
+
+        <div className="mt-10">
+          <MasonryGrid>
+            {displayItems.map((item) => (
+              <BoardItemCard
+                key={item.id}
+                imageUrl={item.primaryImageUrl}
+                title={item.title}
+                price_cents={item.priceCents}
+                currency={item.currency}
+                outfitSlug={slug}
+                itemId={item.id}
+                garmentCategory={item.garmentCategory}
+                displayLabel={item.displayLabel}
+              />
+            ))}
+          </MasonryGrid>
+        </div>
+
+        <div className="mt-12">
           <AffiliateDisclosure />
         </div>
 
-        {[...grouped.entries()].map(([label, list]) => (
-          <section key={label} className="mt-12">
-            <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{label}</h2>
-            <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {list.map((item) => (
-                <ItemCard key={item.id} item={item} />
-              ))}
-            </div>
-          </section>
-        ))}
-
         {relatedCards.length > 0 ? (
-          <section className="mt-16">
-            <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Related outfits</h2>
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {relatedCards.map(({ outfit: o, itemCount }) => (
-                <OutfitCard key={o.id} outfit={o} itemCount={itemCount} />
-              ))}
+          <section className="mt-16 border-t border-outline-variant pt-16">
+            <h2 className="font-headline text-xl text-on-surface">Related outfits</h2>
+            <div className="mt-6">
+              <MasonryGrid>
+                {relatedCards.map(({ outfit: o, itemCount, cardImageUrl, primaryCategoryName }) => (
+                  <OutfitCard
+                    key={o.id}
+                    outfit={o}
+                    itemCount={itemCount}
+                    cardImageUrl={cardImageUrl}
+                    primaryCategoryName={primaryCategoryName}
+                  />
+                ))}
+              </MasonryGrid>
             </div>
           </section>
         ) : null}
