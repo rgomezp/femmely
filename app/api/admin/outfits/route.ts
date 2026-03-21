@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api-guards";
 import { db, outfits } from "@/lib/db";
@@ -50,8 +51,7 @@ export async function POST(req: NextRequest) {
       title: data.title,
       slug,
       description: data.description,
-      heroImageUrl: data.heroImageUrl,
-      heroImageAlt: data.heroImageAlt,
+      mainImageUrl: data.mainImageUrl ?? "",
       status: data.status,
       featured: data.featured,
       season: data.season ?? null,
@@ -78,6 +78,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "ids required" }, { status: 400 });
   }
   await deleteOutfitsByIds(ids);
+  revalidatePath("/");
+  revalidatePath("/outfits");
+  revalidatePath("/sitemap.xml");
   return NextResponse.json({ ok: true });
 }
 

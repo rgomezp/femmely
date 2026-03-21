@@ -1,12 +1,16 @@
+import { del } from "@vercel/blob";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { requireAdmin } from "@/lib/api-guards";
 import { db, outfits } from "@/lib/db";
 import {
+  deleteOutfitsByIds,
   nextUniqueOutfitSlug,
   syncOutfitCategories,
   syncOutfitTags,
 } from "@/lib/outfit-mutations";
+import { isVercelBlobUrl } from "@/lib/vercel-blob-delete";
 import { updateOutfitSchema } from "@/lib/validators";
 
 export async function GET(
@@ -48,6 +52,17 @@ export async function PUT(
     publishedAt = new Date();
   }
 
+  if (
+    data.mainImageUrl !== undefined &&
+    data.mainImageUrl !== existing[0].mainImageUrl
+  ) {
+    const oldUrl = existing[0].mainImageUrl;
+    if (oldUrl && isVercelBlobUrl(oldUrl) && oldUrl !== data.mainImageUrl) {
+      const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+      if (token) await del(oldUrl, { token }).catch(() => {});
+    }
+  }
+
   const [updated] = await db
     .update(outfits)
     .set({
@@ -55,8 +70,7 @@ export async function PUT(
       updatedAt: new Date(),
       ...(data.title !== undefined ? { title: data.title } : {}),
       ...(data.description !== undefined ? { description: data.description } : {}),
-      ...(data.heroImageUrl !== undefined ? { heroImageUrl: data.heroImageUrl } : {}),
-      ...(data.heroImageAlt !== undefined ? { heroImageAlt: data.heroImageAlt } : {}),
+      ...(data.mainImageUrl !== undefined ? { mainImageUrl: data.mainImageUrl } : {}),
       ...(data.status !== undefined ? { status: data.status } : {}),
       ...(data.featured !== undefined ? { featured: data.featured } : {}),
       ...(data.season !== undefined ? { season: data.season } : {}),
@@ -80,6 +94,12 @@ export async function DELETE(
   const denied = await requireAdmin();
   if (denied) return denied;
   const { id } = await ctx.params;
-  await db.delete(outfits).where(eq(outfits.id, id));
+  const existing = await db.select({ id: outfits.id }).from(outfits).where(eq(outfits.id, id)).limit(1);
+  if (!existing[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await deleteOutfitsByIds([id]);
+  revalidatePath("/");
+  revalidatePath("/outfits");
+  revalidatePath("/sitemap.xml");
   return NextResponse.json({ ok: true });
 }

@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
     outfits: rows.map((r) => ({
       ...r.outfit,
       itemCount: r.itemCount,
+      cardImageUrl: r.cardImageUrl,
     })),
   });
 }
