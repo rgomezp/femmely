@@ -4,12 +4,14 @@
   "private": true,
   "packageManager": "yarn@1.22.22",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
+    "db:push:force": "drizzle-kit push --force",
     "db:studio": "drizzle-kit studio",
     "admin:hash-b64": "node scripts/admin-hash-b64.mjs"
   },
@@ -35,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
