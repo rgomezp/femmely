@@ -7,6 +7,7 @@ import {
   outfitTags,
   tags,
 } from "@/lib/db/schema";
+import { deleteOutfitMainImageBlobsForOutfitIds } from "@/lib/vercel-blob-delete";
 import { slugifyTitle } from "@/lib/utils";
 
 export async function nextUniqueOutfitSlug(title: string, excludeId?: string) {
@@ -69,6 +70,7 @@ export async function listAllOutfitsForAdmin(filters?: {
 
 export async function deleteOutfitsByIds(ids: string[]) {
   if (ids.length === 0) return;
+  await deleteOutfitMainImageBlobsForOutfitIds(ids);
   await db.delete(outfits).where(inArray(outfits.id, ids));
 }
 

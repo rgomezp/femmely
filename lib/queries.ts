@@ -48,6 +48,26 @@ export async function itemCountByOutfitIds(ids: string[]): Promise<Map<string, n
   return map;
 }
 
+/** First linked category name per outfit (by category sort order, then name). */
+export async function firstCategoryNameByOutfitIds(outfitIds: string[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (outfitIds.length === 0) return map;
+  const rows = await db
+    .select({
+      outfitId: outfitCategories.outfitId,
+      name: categories.name,
+      sortOrder: categories.sortOrder,
+    })
+    .from(outfitCategories)
+    .innerJoin(categories, eq(outfitCategories.categoryId, categories.id))
+    .where(inArray(outfitCategories.outfitId, outfitIds))
+    .orderBy(asc(outfitCategories.outfitId), asc(categories.sortOrder), asc(categories.name));
+  for (const r of rows) {
+    if (!map.has(r.outfitId)) map.set(r.outfitId, r.name);
+  }
+  return map;
+}
+
 export async function listPublishedOutfits(options?: {
   categorySlug?: string;
   tagSlug?: string;
@@ -124,7 +144,13 @@ export async function listPublishedOutfits(options?: {
     withCounts = [...withCounts].sort((a, b) => b.itemCount - a.itemCount);
   }
 
-  return withCounts.slice(offset, offset + limit);
+  const page = withCounts.slice(offset, offset + limit);
+  const categoryMap = await firstCategoryNameByOutfitIds(page.map((r) => r.outfit.id));
+  return page.map((r) => ({
+    ...r,
+    cardImageUrl: r.outfit.mainImageUrl ?? "",
+    primaryCategoryName: categoryMap.get(r.outfit.id),
+  }));
 }
 
 export async function getFeaturedOutfit() {
@@ -135,6 +161,13 @@ export async function getFeaturedOutfit() {
     .orderBy(desc(outfits.publishedAt))
     .limit(1);
   return row[0] ?? null;
+}
+
+/** Featured outfit with main image for homepage hero. */
+export async function getFeaturedOutfitWithCardImage(): Promise<(Outfit & { cardImageUrl: string }) | null> {
+  const row = await getFeaturedOutfit();
+  if (!row) return null;
+  return { ...row, cardImageUrl: row.mainImageUrl ?? "" };
 }
 
 export async function getOutfitBySlug(slug: string) {
@@ -157,6 +190,27 @@ export async function getOutfitItems(outfitId: string) {
     .from(outfitItems)
     .where(eq(outfitItems.outfitId, outfitId))
     .orderBy(asc(outfitItems.sortOrder), asc(outfitItems.createdAt));
+}
+
+export async function getPublishedOutfitItemBySlugAndId(slug: string, itemId: string) {
+  const outfit = await getPublishedOutfitBySlug(slug);
+  if (!outfit) return null;
+  const row = await db
+    .select()
+    .from(outfitItems)
+    .where(and(eq(outfitItems.outfitId, outfit.id), eq(outfitItems.id, itemId)))
+    .limit(1);
+  const item = row[0];
+  return item ? { outfit, item } : null;
+}
+
+export async function getPublishedOutfitItemRoutes(): Promise<{ slug: string; itemId: string }[]> {
+  const rows = await db
+    .select({ slug: outfits.slug, itemId: outfitItems.id })
+    .from(outfitItems)
+    .innerJoin(outfits, eq(outfits.id, outfitItems.outfitId))
+    .where(eq(outfits.status, "published"));
+  return rows.map((r) => ({ slug: r.slug, itemId: r.itemId }));
 }
 
 export async function getOutfitCategories(outfitId: string) {
@@ -191,18 +245,67 @@ export async function getOutfitTagIds(outfitId: string): Promise<string[]> {
   return rows.map((r) => r.id);
 }
 
-export async function searchPublishedOutfits(q: string, limit = 20) {
-  const term = `%${q.trim()}%`;
-  if (!q.trim()) return [];
+/**
+ * Full-text-style search over published outfits: title, description, linked
+ * category/tag names, and item titles and labels (e.g. brand-style keywords).
+ */
+export async function searchPublishedOutfits(q: string, limit = 48) {
+  const raw = q.trim();
+  if (!raw) return [];
+  const term = `%${raw}%`;
+
+  const [direct, byCategory, byTag, byItem] = await Promise.all([
+    db
+      .select({ id: outfits.id })
+      .from(outfits)
+      .where(
+        and(
+          eq(outfits.status, "published"),
+          or(ilike(outfits.title, term), ilike(outfits.description, term)),
+        ),
+      ),
+    db
+      .select({ id: outfits.id })
+      .from(outfits)
+      .innerJoin(outfitCategories, eq(outfitCategories.outfitId, outfits.id))
+      .innerJoin(categories, eq(categories.id, outfitCategories.categoryId))
+      .where(and(eq(outfits.status, "published"), ilike(categories.name, term))),
+    db
+      .select({ id: outfits.id })
+      .from(outfits)
+      .innerJoin(outfitTags, eq(outfitTags.outfitId, outfits.id))
+      .innerJoin(tags, eq(tags.id, outfitTags.tagId))
+      .where(
+        and(
+          eq(outfits.status, "published"),
+          or(ilike(tags.name, term), ilike(tags.slug, term)),
+        ),
+      ),
+    db
+      .select({ id: outfits.id })
+      .from(outfits)
+      .innerJoin(outfitItems, eq(outfitItems.outfitId, outfits.id))
+      .where(
+        and(
+          eq(outfits.status, "published"),
+          or(ilike(outfitItems.title, term), ilike(outfitItems.displayLabel, term)),
+        ),
+      ),
+  ]);
+
+  const idSet = new Set<string>();
+  for (const r of direct) idSet.add(r.id);
+  for (const r of byCategory) idSet.add(r.id);
+  for (const r of byTag) idSet.add(r.id);
+  for (const r of byItem) idSet.add(r.id);
+
+  if (idSet.size === 0) return [];
+
+  const ids = [...idSet];
   return db
     .select()
     .from(outfits)
-    .where(
-      and(
-        eq(outfits.status, "published"),
-        or(ilike(outfits.title, term), ilike(outfits.description, term)),
-      ),
-    )
+    .where(and(eq(outfits.status, "published"), inArray(outfits.id, ids)))
     .orderBy(desc(outfits.publishedAt))
     .limit(limit);
 }
@@ -210,7 +313,13 @@ export async function searchPublishedOutfits(q: string, limit = 20) {
 export async function outfitsWithItemCounts(outfitList: Outfit[]) {
   const ids = outfitList.map((o) => o.id);
   const map = await itemCountByOutfitIds(ids);
-  return outfitList.map((outfit) => ({ outfit, itemCount: map.get(outfit.id) ?? 0 }));
+  const categoryMap = await firstCategoryNameByOutfitIds(ids);
+  return outfitList.map((outfit) => ({
+    outfit,
+    itemCount: map.get(outfit.id) ?? 0,
+    cardImageUrl: outfit.mainImageUrl ?? "",
+    primaryCategoryName: categoryMap.get(outfit.id),
+  }));
 }
 
 export async function getRelatedOutfits(outfitId: string, categoryIds: string[], tagIds: string[], limit = 6) {

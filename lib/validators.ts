@@ -20,8 +20,7 @@ export const outfitStatusSchema = z.enum(["draft", "published"]);
 export const createOutfitSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().default(""),
-  heroImageUrl: z.string().min(1),
-  heroImageAlt: z.string().max(255).default(""),
+  mainImageUrl: z.string().default(""),
   status: outfitStatusSchema.default("draft"),
   featured: z.boolean().default(false),
   season: z.string().max(50).optional().nullable(),
