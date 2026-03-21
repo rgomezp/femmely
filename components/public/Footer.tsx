@@ -2,29 +2,36 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-[var(--color-border)] bg-[var(--color-surface)]">
-      <div className="mx-auto max-w-[1400px] px-4 py-10 md:px-6">
-        <div className="flex flex-col gap-6 md:flex-row md:justify-between">
-          <div>
-            <p className="font-semibold text-[var(--color-text-primary)]">Femmely</p>
-            <p className="mt-1 max-w-sm text-sm text-[var(--color-text-secondary)]">
-              Curated outfit boards and practical sizing help for exploring women&apos;s fashion.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-6 text-sm">
-            <Link href="/privacy" className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]">
-              Privacy
-            </Link>
-            <Link href="/disclosure" className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]">
-              Disclosure
-            </Link>
-            <Link href="/size-guide" className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent-secondary)]">
-              Size guide
-            </Link>
-          </div>
+    <footer className="mt-20 bg-surface-container-low py-16 px-8">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+        <div>
+          <p className="font-headline text-lg italic text-on-surface">Femmely</p>
+          <p className="font-label mt-2 max-w-sm text-xs tracking-wide text-on-surface-variant">
+            Curated outfit boards and practical sizing help for exploring women&apos;s fashion.
+          </p>
         </div>
-        <p className="mt-8 text-xs text-[var(--color-text-secondary)]">
-          © {new Date().getFullYear()} Honey Wolf LLC. All rights reserved.
+        <nav className="flex flex-wrap items-start gap-x-8 gap-y-3 md:justify-center">
+          <Link
+            href="/about"
+            className="font-label text-xs tracking-wide text-on-surface-variant opacity-60 transition hover:text-primary hover:opacity-100"
+          >
+            About
+          </Link>
+          <Link
+            href="/privacy"
+            className="font-label text-xs tracking-wide text-on-surface-variant opacity-60 transition hover:text-primary hover:opacity-100"
+          >
+            Privacy
+          </Link>
+          <Link
+            href="/disclosure"
+            className="font-label text-xs tracking-wide text-on-surface-variant opacity-60 transition hover:text-primary hover:opacity-100"
+          >
+            Disclosure
+          </Link>
+        </nav>
+        <p className="font-label text-xs tracking-wide text-on-surface-variant md:text-right">
+          © 2026 Femmely. All rights reserved.
         </p>
       </div>
     </footer>

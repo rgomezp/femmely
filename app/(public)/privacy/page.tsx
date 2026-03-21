@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 md:px-6">
-      <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Privacy policy</h1>
-      <div className="mt-6 space-y-4 text-[var(--color-text-secondary)]">
+      <h1 className="font-headline text-4xl text-on-surface md:text-5xl">Privacy policy</h1>
+      <div className="mt-6 space-y-4 font-body text-on-surface-variant">
         <p>
           We collect only what is needed to run the site. Admin authentication uses secure sessions. Public pages do
           not require an account.

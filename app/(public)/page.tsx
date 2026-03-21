@@ -3,106 +3,115 @@ import Link from "next/link";
 import { CategoryBar } from "@/components/public/CategoryBar";
 import { MasonryGrid } from "@/components/public/MasonryGrid";
 import { OutfitCard } from "@/components/public/OutfitCard";
-import {
-  getFeaturedOutfit,
-  listCategories,
-  listPublishedOutfits,
-} from "@/lib/queries";
-import type { Outfit } from "@/lib/db/schema";
+import { listCategories, listPublishedOutfits } from "@/lib/queries";
 
 export const revalidate = 86400;
 
 export default async function HomePage() {
   let categories: Awaited<ReturnType<typeof listCategories>> = [];
-  let featured: Outfit | null = null;
   let grid: Awaited<ReturnType<typeof listPublishedOutfits>> = [];
   try {
-    [categories, featured, grid] = await Promise.all([
+    [categories, grid] = await Promise.all([
       listCategories(),
-      getFeaturedOutfit(),
       listPublishedOutfits({ limit: 12, offset: 0, sort: "newest" }),
     ]);
   } catch {
     /* Database unavailable at build or misconfigured DATABASE_URL */
   }
 
-  const hero = featured ?? grid[0]?.outfit;
-
   return (
-    <div className="pb-16">
-      <section className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-        <div className="mx-auto max-w-[1400px] px-4 py-10 md:flex md:items-center md:gap-12 md:px-6 md:py-14">
-          <div className="max-w-xl">
-            <p className="text-sm font-medium uppercase tracking-wide text-[var(--color-accent)]">
-              Femmely.club
-            </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-text-primary)] md:text-4xl">
-              Outfit boards you can actually shop
+    <div>
+      <section className="mx-auto max-w-[1400px] px-4 pb-16 md:px-6">
+        <div className="flex flex-col items-start justify-between gap-10 md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <h1 className="font-headline text-5xl font-bold tracking-tight leading-tight text-on-surface md:text-7xl">
+              Thoughtful fashion <span className="font-normal italic">curation</span> for every closet
             </h1>
-            <p className="mt-4 text-[var(--color-text-secondary)]">
+            <p className="font-body mt-6 max-w-md text-lg leading-relaxed text-on-surface-variant">
               Browse styled looks, tap through to Amazon, and use our sizing translator when you need a women&apos;s
               size starting point from your measurements.
             </p>
             <Link
-              href="/size-guide"
-              className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-accent-secondary)] underline-offset-4 hover:underline"
+              href="/outfits"
+              className="font-label mt-10 inline-flex items-center rounded-full bg-gradient-to-br from-primary to-primary-container px-8 py-4 text-xs uppercase tracking-widest text-on-primary shadow-lg transition hover:opacity-90"
             >
-              New to women&apos;s sizing? Try our size guide →
+              Explore outfits
             </Link>
           </div>
-          {hero ? (
-            <Link
-              href={`/outfits/${hero.slug}`}
-              className="mt-8 block flex-1 overflow-hidden rounded-[12px] border border-[var(--color-border)] shadow-[var(--shadow-card)] md:mt-0"
-            >
-              <div className="relative aspect-[4/5] w-full max-w-md md:max-w-none">
-                <Image
-                  src={hero.heroImageUrl}
-                  alt={hero.heroImageAlt || hero.title}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                  <p className="font-semibold text-white">{hero.title}</p>
-                  <p className="text-sm text-white/90">Featured look</p>
-                </div>
-              </div>
-            </Link>
-          ) : null}
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1400px] px-4 pt-8 md:px-6">
-        <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Shop by category</h2>
+      <div className="mx-auto max-w-[1400px] px-4 md:px-6">
+        <h2 className="font-headline text-xl text-on-surface">Shop by category</h2>
         <div className="mt-4">
           <CategoryBar categories={categories} />
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-4 py-10 md:px-6">
-        <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Latest outfits</h2>
-        <MasonryGrid>
-          {grid.map(({ outfit, itemCount }) => (
-            <OutfitCard key={outfit.id} outfit={outfit} itemCount={itemCount} />
-          ))}
-        </MasonryGrid>
+      <div className="mx-auto max-w-[1400px] px-4 py-12 md:px-6">
+        <h2 className="font-headline text-xl text-on-surface">Latest outfits</h2>
+        <div className="mt-8">
+          <MasonryGrid>
+            {grid.map(({ outfit, itemCount, cardImageUrl, primaryCategoryName }) => (
+              <OutfitCard
+                key={outfit.id}
+                outfit={outfit}
+                itemCount={itemCount}
+                cardImageUrl={cardImageUrl}
+                primaryCategoryName={primaryCategoryName}
+              />
+            ))}
+          </MasonryGrid>
+        </div>
         {grid.length === 0 ? (
-          <p className="mt-8 text-center text-[var(--color-text-secondary)]">
+          <p className="mt-8 text-center font-body text-on-surface-variant">
             Outfits will appear here once published from the admin dashboard.
           </p>
         ) : (
-          <div className="mt-10 text-center">
+          <div className="mt-12 text-center">
             <Link
               href="/outfits"
-              className="inline-flex min-h-11 items-center rounded-[12px] border border-[var(--color-border)] px-6 text-sm font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-surface)]"
+              className="font-label inline-flex items-center rounded-xl border border-outline-variant px-6 py-3 text-xs uppercase tracking-widest text-on-surface transition-colors hover:bg-surface-container-high"
             >
               View all outfits
             </Link>
           </div>
         )}
       </div>
+
+      <section className="mx-auto mt-32 max-w-[1400px] px-4 md:px-6">
+        <div className="rounded-xl bg-surface-container-low p-6 md:p-12">
+          <div className="flex flex-col items-center gap-12 md:flex-row">
+            <div className="max-w-xl flex-1">
+              <p className="font-label text-[10px] uppercase tracking-widest text-primary">Precision Styling</p>
+              <h2 className="font-headline mt-3 text-4xl text-on-surface">Find your fit with confidence</h2>
+              <p className="font-body mt-4 text-lg leading-relaxed text-on-surface-variant">
+                Practical men&apos;s-to-women&apos;s sizing starting points for shoes, apparel, and more. Not a
+                substitute for trying things on—always check each brand&apos;s chart.
+              </p>
+              <Link
+                href="/size-guide"
+                className="font-label mt-8 inline-flex rounded-full bg-primary px-8 py-3 text-[10px] uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90"
+              >
+                Open size guide
+              </Link>
+            </div>
+            <div className="relative w-full flex-1 overflow-hidden rounded-xl md:min-h-[280px]">
+              <Image
+                src="https://images.unsplash.com/photo-1558171813-4c088753af8f?auto=format&fit=crop&w=900&q=80"
+                alt=""
+                width={900}
+                height={600}
+                className="h-full min-h-[220px] w-full object-cover"
+              />
+              <div
+                className="pointer-events-none absolute inset-0 bg-primary/10 mix-blend-overlay"
+                aria-hidden
+              />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

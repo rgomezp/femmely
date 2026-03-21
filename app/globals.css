@@ -1,39 +1,159 @@
 @import "tailwindcss";
-
-:root {
-  --color-bg: #fafafa;
-  --color-surface: #ffffff;
-  --color-text-primary: #1a1a2e;
-  --color-text-secondary: #6b7280;
-  --color-accent: #e8485c;
-  --color-accent-secondary: #a855f7;
-  --color-border: #e5e7eb;
-  --color-border-secondary: #c4b5fd;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
+@plugin "@tailwindcss/forms";
 
 @theme inline {
-  --color-background: var(--color-bg);
-  --color-foreground: var(--color-text-primary);
-  --font-sans: var(--font-inter);
+  /* Primary */
+  --color-primary: #7b554c;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #bd9085;
+  --color-on-primary-container: #492a22;
+  --color-primary-fixed: #ffdad2;
+  --color-primary-fixed-dim: #edbbb0;
+  --color-on-primary-fixed: #2f140d;
+  --color-on-primary-fixed-variant: #613e36;
+  --color-inverse-primary: #edbbb0;
+
+  /* Secondary */
+  --color-secondary: #635d5c;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e6dedc;
+  --color-on-secondary-container: #676160;
+  --color-secondary-fixed: #e9e1df;
+  --color-secondary-fixed-dim: #cdc5c3;
+  --color-on-secondary-fixed: #1e1b1a;
+  --color-on-secondary-fixed-variant: #4b4645;
+
+  /* Tertiary */
+  --color-tertiary: #645d53;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #a1998d;
+  --color-on-tertiary-container: #373129;
+  --color-tertiary-fixed: #ebe1d4;
+  --color-tertiary-fixed-dim: #cfc5b9;
+  --color-on-tertiary-fixed: #1f1b13;
+  --color-on-tertiary-fixed-variant: #4c463c;
+
+  /* Error */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* Surface */
+  --color-surface: #fcf9f4;
+  --color-surface-dim: #dcdad5;
+  --color-surface-bright: #fcf9f4;
+  --color-surface-variant: #e5e2dd;
+  --color-surface-tint: #7b554c;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3ee;
+  --color-surface-container: #f0ede9;
+  --color-surface-container-high: #ebe8e3;
+  --color-surface-container-highest: #e5e2dd;
+  --color-on-surface: #1c1c19;
+  --color-on-surface-variant: #504444;
+  --color-inverse-surface: #31302d;
+  --color-inverse-on-surface: #f3f0eb;
+
+  /* Outline */
+  --color-outline: #827473;
+  --color-outline-variant: #d4c2c2;
+
+  /* Background */
+  --color-background: #fcf9f4;
+  --color-on-background: #1c1c19;
+
+  --font-headline: var(--font-noto-serif), ui-serif, Georgia, serif;
+  --font-body: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-label: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 0.25rem;
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-3xl: 1.5rem;
+
+  --shadow-card: 0 12px 40px rgba(28, 28, 25, 0.06);
+  --shadow-card-hover: 0 20px 60px rgba(28, 28, 25, 0.12);
+  --shadow-nav: 0 12px 40px rgba(28, 28, 25, 0.06);
+  --shadow-bottom-nav: 0 -8px 30px rgba(0, 0, 0, 0.04);
 }
 
-body {
-  background: var(--color-bg);
-  color: var(--color-text-primary);
-  font-family: var(--font-inter), system-ui, sans-serif;
+@layer base {
+  body {
+    @apply bg-surface font-body text-on-surface antialiased;
+  }
+
+  a {
+    @apply text-inherit;
+  }
 }
 
-a {
-  color: inherit;
+/* Masonry grid (CSS columns) */
+.masonry-grid {
+  column-count: 1;
+  column-gap: 1.5rem;
+}
+@media (min-width: 480px) {
+  .masonry-grid {
+    column-count: 2;
+  }
+}
+@media (min-width: 768px) {
+  .masonry-grid {
+    column-count: 2;
+  }
+}
+@media (min-width: 1024px) {
+  .masonry-grid {
+    column-count: 3;
+  }
+}
+@media (min-width: 1280px) {
+  .masonry-grid {
+    column-count: 4;
+  }
+}
+@media (min-width: 1536px) {
+  .masonry-grid {
+    column-count: 5;
+  }
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::selection {
+  background-color: #bd9085;
+  color: #492a22;
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: normal;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  letter-spacing: normal;
+  line-height: 1;
+  text-transform: none;
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
 .prose-description {
-  color: var(--color-text-secondary);
-  line-height: 1.65;
+  @apply font-body text-base leading-relaxed text-on-surface-variant;
 }
 
 .prose-description a {
-  color: var(--color-accent);
-  text-decoration: underline;
+  @apply text-primary underline;
 }

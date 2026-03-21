@@ -72,9 +72,9 @@ export function MeasurementConverter({
     <div className="space-y-5">
       {map.inputs.map((inp) => (
         <div key={inp.key}>
-          <div className="flex justify-between text-sm font-medium text-[var(--color-text-primary)]">
+          <div className="flex justify-between font-body text-sm font-medium text-on-surface">
             <span>{inp.label}</span>
-            <span className="text-[var(--color-accent-secondary)]">{values[inp.key]?.toFixed(inp.step < 1 ? 1 : 0)}</span>
+            <span className="text-tertiary">{values[inp.key]?.toFixed(inp.step < 1 ? 1 : 0)}</span>
           </div>
           <input
             type="range"
@@ -82,26 +82,26 @@ export function MeasurementConverter({
             max={inp.max}
             step={inp.step}
             value={values[inp.key] ?? inp.min}
-            className="mt-2 h-11 w-full accent-[var(--color-accent)]"
+            className="mt-2 h-11 w-full rounded-xl accent-primary"
             onChange={(e) => update(inp.key, Number(e.target.value))}
           />
         </div>
       ))}
       <div
-        className={`rounded-xl border p-4 transition-all ${size ? "border-[var(--color-accent-secondary)] bg-[var(--color-accent-secondary)]/5" : "border-[var(--color-border)] bg-[var(--color-bg)]"}`}
+        className={`rounded-xl border p-6 transition-all ${size ? "border-primary/20 bg-primary-fixed" : "border-outline-variant bg-surface-container-low"}`}
       >
         {size ? (
           <>
-            <p className="text-sm text-[var(--color-text-secondary)]">Your recommended women&apos;s size</p>
-            <p className="text-xl font-semibold text-[var(--color-text-primary)]">{size}</p>
+            <p className="font-body text-sm text-on-surface-variant">Your recommended women&apos;s size</p>
+            <p className="font-headline mt-2 text-center text-3xl text-primary">{size}</p>
           </>
         ) : (
-          <p className="text-sm text-[var(--color-text-secondary)]">
+          <p className="font-body text-sm text-on-surface-variant">
             Adjust measurements to see a match. If you fall between chart bands, size up.
           </p>
         )}
       </div>
-      <p className="text-xs text-[var(--color-text-secondary)]">
+      <p className="font-body text-xs text-on-surface-variant">
         Sizes vary by brand. When in between sizes, we recommend sizing up.
       </p>
     </div>

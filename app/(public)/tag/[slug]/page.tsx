@@ -55,14 +55,20 @@ export default async function TagPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-10 md:px-6">
-      <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">#{tag.name}</h1>
+      <h1 className="font-headline text-2xl font-bold text-on-surface md:text-4xl">#{tag.name}</h1>
       <MasonryGrid>
-        {rows.map(({ outfit, itemCount }) => (
-          <OutfitCard key={outfit.id} outfit={outfit} itemCount={itemCount} />
+        {rows.map(({ outfit, itemCount, cardImageUrl, primaryCategoryName }) => (
+          <OutfitCard
+            key={outfit.id}
+            outfit={outfit}
+            itemCount={itemCount}
+            cardImageUrl={cardImageUrl}
+            primaryCategoryName={primaryCategoryName}
+          />
         ))}
       </MasonryGrid>
       {rows.length === 0 ? (
-        <p className="mt-8 text-[var(--color-text-secondary)]">No outfits with this tag yet.</p>
+        <p className="mt-8 font-body text-on-surface-variant">No outfits with this tag yet.</p>
       ) : null}
     </div>
   );

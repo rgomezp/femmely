@@ -47,10 +47,10 @@ export function DirectSizeConverter({
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-[var(--color-text-primary)]">
+      <label className="block font-body text-sm font-medium text-on-surface">
         {map.label}
         <select
-          className="mt-2 w-full min-h-11 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-text-primary)]"
+          className="mt-2 w-full min-h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
@@ -65,17 +65,17 @@ export function DirectSizeConverter({
         </select>
       </label>
       {result ? (
-        <div className="rounded-xl border border-[var(--color-border-secondary)] bg-[var(--color-accent-secondary)]/5 p-4 transition-opacity">
-          <p className="text-sm text-[var(--color-text-secondary)]">{map.targetLabel}</p>
-          <p className="text-xl font-semibold text-[var(--color-text-primary)]">{result.target}</p>
+        <div className="rounded-xl border border-primary/20 bg-primary-fixed p-6 transition-opacity">
+          <p className="font-body text-sm text-on-surface-variant">{map.targetLabel}</p>
+          <p className="font-headline mt-2 text-center text-3xl text-primary">{result.target}</p>
           {result.eu ? (
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">EU: {result.eu}</p>
+            <p className="mt-2 text-center font-body text-sm text-on-surface-variant">EU: {result.eu}</p>
           ) : null}
         </div>
       ) : null}
-      <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
+      <div className="overflow-x-auto rounded-xl border border-outline-variant">
         <table className="w-full min-w-[280px] text-left text-sm">
-          <thead className="bg-[var(--color-bg)]">
+          <thead className="bg-surface-container-low">
             <tr>
               <th className="p-2 font-medium">{map.label}</th>
               <th className="p-2 font-medium">{map.targetLabel}</th>
@@ -84,7 +84,7 @@ export function DirectSizeConverter({
           </thead>
           <tbody>
             {map.mappings.map((m) => (
-              <tr key={m.source} className="border-t border-[var(--color-border)]">
+              <tr key={m.source} className="border-t border-outline-variant">
                 <td className="p-2">{m.source}</td>
                 <td className="p-2">{m.target}</td>
                 {map.mappings.some((x) => x.eu) ? <td className="p-2">{m.eu ?? "—"}</td> : null}

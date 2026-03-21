@@ -32,8 +32,8 @@ export default async function OutfitsPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-10 md:px-6">
-      <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">All outfits</h1>
-      <p className="mt-2 text-[var(--color-text-secondary)]">
+      <h1 className="font-headline text-2xl font-bold text-on-surface md:text-4xl">All outfits</h1>
+      <p className="font-body mt-2 text-lg text-on-surface-variant leading-relaxed">
         Filter and browse curated boards. Every look links to Amazon with clear disclosure.
       </p>
 
@@ -41,13 +41,19 @@ export default async function OutfitsPage({ searchParams }: Props) {
         <OutfitFilters categories={categories} />
       </Suspense>
 
-      <MasonryGrid>
-        {rows.map(({ outfit, itemCount }) => (
-          <OutfitCard key={outfit.id} outfit={outfit} itemCount={itemCount} />
+      <MasonryGrid className="mt-8">
+        {rows.map(({ outfit, itemCount, cardImageUrl, primaryCategoryName }) => (
+          <OutfitCard
+            key={outfit.id}
+            outfit={outfit}
+            itemCount={itemCount}
+            cardImageUrl={cardImageUrl}
+            primaryCategoryName={primaryCategoryName}
+          />
         ))}
       </MasonryGrid>
       {rows.length === 0 ? (
-        <p className="mt-8 text-center text-[var(--color-text-secondary)]">No outfits match these filters yet.</p>
+        <p className="mt-8 text-center font-body text-on-surface-variant">No outfits match these filters yet.</p>
       ) : null}
     </div>
   );

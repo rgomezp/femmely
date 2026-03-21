@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { SIZING_CATEGORY_SLUGS } from "@/lib/sizing/types";
 import {
   getCategorySlugs,
+  getPublishedOutfitItemRoutes,
   getPublishedOutfitSlugs,
   getTagSlugs,
 } from "@/lib/queries";
@@ -25,11 +26,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let outfitSlugs: string[] = [];
   let catSlugs: string[] = [];
   let tagSlugs: string[] = [];
+  let outfitItems: { slug: string; itemId: string }[] = [];
   try {
-    [outfitSlugs, catSlugs, tagSlugs] = await Promise.all([
+    [outfitSlugs, catSlugs, tagSlugs, outfitItems] = await Promise.all([
       getPublishedOutfitSlugs(),
       getCategorySlugs(),
       getTagSlugs(),
+      getPublishedOutfitItemRoutes(),
     ]);
   } catch {
     /* DB may be unavailable at build */
@@ -37,6 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const outfits = outfitSlugs.map((slug) => ({
     url: absoluteUrl(`/outfits/${slug}`),
+    lastModified: now,
+  }));
+  const itemPages = outfitItems.map(({ slug, itemId }) => ({
+    url: absoluteUrl(`/outfits/${slug}/${itemId}`),
     lastModified: now,
   }));
   const cats = catSlugs.map((slug) => ({
@@ -52,5 +59,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
   }));
 
-  return [...staticRoutes, ...outfits, ...cats, ...tgs, ...size];
+  return [...staticRoutes, ...outfits, ...itemPages, ...cats, ...tgs, ...size];
 }

@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 export default function DisclosurePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 md:px-6">
-      <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Affiliate disclosure</h1>
-      <div className="mt-6 space-y-4 text-[var(--color-text-secondary)]">
+      <h1 className="font-headline text-4xl text-on-surface md:text-5xl">Affiliate disclosure</h1>
+      <div className="mt-6 space-y-4 font-body text-on-surface-variant">
         <p>
           Femmely is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program
           designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.

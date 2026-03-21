@@ -59,13 +59,13 @@ export default async function SizeGuideCategoryPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }} />
-      <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">
+      <h2 className="font-headline text-xl text-on-surface md:text-2xl">
         {GARMENT_CATEGORY_LABELS[category]} converter
       </h2>
       <div className="mt-6">
         <SizeGuideNav active={category} />
       </div>
-      <div className="mt-8 rounded-[12px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-card)]">
+      <div className="mt-8 rounded-xl bg-surface-container-lowest p-6 shadow-card md:p-8">
         <SizeTranslator garmentCategory={category} />
       </div>
     </>
