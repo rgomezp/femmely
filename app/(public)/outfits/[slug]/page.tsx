@@ -208,9 +208,11 @@ export default async function OutfitPage({ params }: Props) {
           </MasonryGrid>
         </div>
 
-        <div className="mt-12">
-          <AffiliateDisclosure />
-        </div>
+        {displayItems.length > 0 ? (
+          <div className="mt-12">
+            <AffiliateDisclosure />
+          </div>
+        ) : null}
 
         {relatedCards.length > 0 ? (
           <section className="mt-16 border-t border-outline-variant pt-16">
