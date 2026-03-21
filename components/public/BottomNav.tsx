@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { SavedOutfitsCountBadge } from "@/components/public/SavedOutfitsCountBadge";
 
 const items: { href: string; label: string; icon: string }[] = [
-  { href: "/", label: "Browse", icon: "grid_view" },
-  { href: "/outfits", label: "Outfits", icon: "checkroom" },
-  { href: "/size-guide", label: "Size Guide", icon: "straighten" },
+  { href: "/", label: "Explore", icon: "auto_awesome" },
+  { href: "/outfits", label: "Curate", icon: "dashboard" },
+  { href: "/size-guide", label: "Sizing", icon: "straighten" },
+  { href: "/saved", label: "Saved", icon: "bookmark" },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -31,13 +33,18 @@ export function BottomNav() {
               <Link
                 key={href}
                 href={href}
-                className={`flex flex-col items-center transition-all ${
+                className={`relative flex flex-col items-center transition-all ${
                   active
                     ? "scale-110 -translate-y-2 rounded-full bg-primary p-3 text-on-primary"
                     : "text-on-surface-variant hover:text-primary"
                 }`}
               >
-                <Icon name={icon} className="text-xl" />
+                <span className="relative inline-flex">
+                  <Icon name={icon} className="text-xl" />
+                  {href === "/saved" ? (
+                    <SavedOutfitsCountBadge variant={active ? "onPrimary" : "default"} />
+                  ) : null}
+                </span>
                 <span className="font-label mt-1 text-center text-[10px] uppercase tracking-widest">
                   {label}
                 </span>

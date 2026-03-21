@@ -5,6 +5,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AffiliateDisclosure } from "@/components/public/AffiliateDisclosure";
 import { BoardItemCard } from "@/components/public/BoardItemCard";
+import { BookmarkButton } from "@/components/public/BookmarkButton";
 import { OutfitCard } from "@/components/public/OutfitCard";
 import { MasonryGrid } from "@/components/public/MasonryGrid";
 import { getCachedAmazonItem } from "@/lib/amazon";
@@ -143,7 +144,10 @@ export default async function OutfitPage({ params }: Props) {
           <span className="text-on-surface">{outfit.title}</span>
         </nav>
 
-        <h1 className="font-headline mt-4 text-3xl font-bold text-on-surface md:text-4xl">{outfit.title}</h1>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <h1 className="font-headline text-3xl font-bold text-on-surface md:text-4xl">{outfit.title}</h1>
+          <BookmarkButton outfitId={outfit.id} size="md" />
+        </div>
         <div className="mt-3 flex flex-wrap gap-2 font-body text-sm text-on-surface-variant">
           {outfit.season ? (
             <span className="rounded-lg bg-surface-container px-2 py-1">{outfit.season}</span>

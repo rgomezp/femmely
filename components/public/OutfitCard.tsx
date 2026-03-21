@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Outfit } from "@/lib/db/schema";
-import { Icon } from "@/components/ui/Icon";
+import { BookmarkButton } from "@/components/public/BookmarkButton";
 
 function aspectClassForOutfitId(id: string): string {
   const n =
@@ -17,6 +17,7 @@ export function OutfitCard({
   categoryName,
   primaryCategoryName,
   cardImageUrl,
+  onBookmarkChange,
 }: {
   outfit: Outfit;
   itemCount: number;
@@ -25,14 +26,15 @@ export function OutfitCard({
   /** First category from DB when not on a category page. */
   primaryCategoryName?: string;
   cardImageUrl: string;
+  onBookmarkChange?: (saved: boolean) => void;
 }) {
   const label = categoryName ?? primaryCategoryName;
   const aspect = aspectClassForOutfitId(outfit.id);
 
   return (
     <div className="masonry-item">
-      <Link href={`/outfits/${outfit.slug}`} className="group block">
-        <article className="overflow-hidden rounded-xl bg-surface-container-lowest shadow-card transition-all duration-500 hover:shadow-card-hover">
+      <div className="overflow-hidden rounded-xl bg-surface-container-lowest shadow-card transition-all duration-500 hover:shadow-card-hover">
+        <Link href={`/outfits/${outfit.slug}`} className="group block">
           <div className={`relative w-full overflow-hidden bg-surface-container ${aspect}`}>
             {cardImageUrl ? (
               <Image
@@ -51,7 +53,7 @@ export function OutfitCard({
               {itemCount} {itemCount === 1 ? "item" : "items"}
             </span>
           </div>
-          <div className="p-6">
+          <div className="p-6 pb-4">
             {label ? (
               <span className="font-label mb-2 block text-[10px] uppercase tracking-widest text-on-surface-variant">
                 {label}
@@ -60,14 +62,12 @@ export function OutfitCard({
             <h2 className="font-headline text-xl text-on-surface transition-colors group-hover:text-primary">
               {outfit.title}
             </h2>
-            <div className="mt-4 flex items-center justify-end gap-3">
-              <span className="shrink-0 text-on-surface-variant" aria-hidden>
-                <Icon name="bookmark" className="text-xl" />
-              </span>
-            </div>
           </div>
-        </article>
-      </Link>
+        </Link>
+        <div className="flex items-center justify-end px-6 pb-6 pt-0">
+          <BookmarkButton outfitId={outfit.id} onSavedChange={onBookmarkChange} />
+        </div>
+      </div>
     </div>
   );
 }

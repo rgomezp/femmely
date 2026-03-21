@@ -68,6 +68,24 @@ export async function firstCategoryNameByOutfitIds(outfitIds: string[]): Promise
   return map;
 }
 
+/** First outfit item image URL per outfit (by sortOrder, then createdAt). */
+export async function firstItemImageUrlByOutfitIds(outfitIds: string[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (outfitIds.length === 0) return map;
+  const rows = await db
+    .select({
+      outfitId: outfitItems.outfitId,
+      imageUrl: outfitItems.imageUrl,
+    })
+    .from(outfitItems)
+    .where(inArray(outfitItems.outfitId, outfitIds))
+    .orderBy(asc(outfitItems.outfitId), asc(outfitItems.sortOrder), asc(outfitItems.createdAt));
+  for (const r of rows) {
+    if (!map.has(r.outfitId)) map.set(r.outfitId, r.imageUrl);
+  }
+  return map;
+}
+
 export async function listPublishedOutfits(options?: {
   categorySlug?: string;
   tagSlug?: string;
@@ -76,6 +94,8 @@ export async function listPublishedOutfits(options?: {
   sort?: "newest" | "items" | "title";
   limit?: number;
   offset?: number;
+  /** When set, only these published outfits (intersects with category/tag filters). */
+  ids?: string[];
 }) {
   const limit = options?.limit ?? 24;
   const offset = options?.offset ?? 0;
@@ -111,6 +131,13 @@ export async function listPublishedOutfits(options?: {
     if (outfitIds.length === 0) return [];
   }
 
+  if (options?.ids?.length) {
+    const parsed = [...new Set(options.ids.map((id) => id.trim()).filter(Boolean))];
+    if (parsed.length === 0) return [];
+    outfitIds = outfitIds ? outfitIds.filter((id) => parsed.includes(id)) : parsed;
+    if (outfitIds.length === 0) return [];
+  }
+
   const conds = [eq(outfits.status, "published")];
   if (outfitIds) conds.push(inArray(outfits.id, outfitIds));
   if (options?.season) conds.push(eq(outfits.season, options.season));
@@ -140,15 +167,26 @@ export async function listPublishedOutfits(options?: {
     itemCount: countMap.get(outfit.id) ?? 0,
   }));
 
-  if (options?.sort === "items") {
+  if (options?.ids?.length) {
+    const orderMap = new Map(options.ids.map((id, i) => [id.trim(), i]));
+    withCounts = [...withCounts].sort(
+      (a, b) => (orderMap.get(a.outfit.id) ?? 999) - (orderMap.get(b.outfit.id) ?? 999),
+    );
+  } else if (options?.sort === "items") {
     withCounts = [...withCounts].sort((a, b) => b.itemCount - a.itemCount);
   }
 
   const page = withCounts.slice(offset, offset + limit);
   const categoryMap = await firstCategoryNameByOutfitIds(page.map((r) => r.outfit.id));
+  const firstItemImages =
+    options?.ids?.length && page.length > 0
+      ? await firstItemImageUrlByOutfitIds(page.map((r) => r.outfit.id))
+      : null;
+
   return page.map((r) => ({
     ...r,
-    cardImageUrl: r.outfit.mainImageUrl ?? "",
+    cardImageUrl:
+      firstItemImages?.get(r.outfit.id) ?? r.outfit.mainImageUrl ?? "",
     primaryCategoryName: categoryMap.get(r.outfit.id),
   }));
 }

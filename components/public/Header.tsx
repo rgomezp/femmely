@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { SavedOutfitsCountBadge } from "@/components/public/SavedOutfitsCountBadge";
 import { SearchBar, SearchBarSkeleton } from "@/components/public/SearchBar";
 
 const nav: { href: string; label: string }[] = [
@@ -62,6 +63,17 @@ export function Header() {
             <SearchBar className="relative w-full max-w-md" inputId="header-search" />
           </Suspense>
         </div>
+
+        <Link
+          href="/saved"
+          className="hidden shrink-0 rounded-full p-2 text-primary transition-opacity hover:opacity-80 md:inline-flex"
+          aria-label="Saved outfits"
+        >
+          <span className="relative inline-flex">
+            <Icon name="bookmark" className="text-2xl" />
+            <SavedOutfitsCountBadge variant="header" />
+          </span>
+        </Link>
       </div>
     </header>
   );
