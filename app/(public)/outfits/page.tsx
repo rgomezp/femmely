@@ -41,7 +41,7 @@ export default async function OutfitsPage({ searchParams }: Props) {
         <OutfitFilters categories={categories} />
       </Suspense>
 
-      <MasonryGrid className="mt-8">
+      <MasonryGrid className="mt-6 md:mt-8">
         {rows.map(({ outfit, itemCount, cardImageUrl, primaryCategoryName }) => (
           <OutfitCard
             key={outfit.id}

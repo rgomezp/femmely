@@ -41,16 +41,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1400px] px-4 md:px-6">
+      <div className="mx-auto max-w-[1400px] px-4 pb-12 md:px-6">
         <h2 className="font-headline text-xl text-on-surface">Shop by category</h2>
         <div className="mt-4">
           <CategoryBar categories={categories} />
         </div>
-      </div>
 
-      <div className="mx-auto max-w-[1400px] px-4 py-12 md:px-6">
-        <h2 className="font-headline text-xl text-on-surface">Latest outfits</h2>
-        <div className="mt-8">
+        <h2 className="font-headline mt-10 text-xl text-on-surface md:mt-12">Latest outfits</h2>
+        <div className="mt-6 md:mt-8">
           <MasonryGrid>
             {grid.map(({ outfit, itemCount, cardImageUrl, primaryCategoryName }) => (
               <OutfitCard

@@ -59,7 +59,7 @@ export default async function CategoryPage({ params }: Props) {
       {cat.description ? (
         <p className="font-body mt-2 max-w-2xl text-on-surface-variant">{cat.description}</p>
       ) : null}
-      <MasonryGrid>
+      <MasonryGrid className="mt-8">
         {rows.map(({ outfit, itemCount, cardImageUrl }) => (
           <OutfitCard
             key={outfit.id}
