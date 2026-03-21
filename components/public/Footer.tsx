@@ -7,7 +7,7 @@ export function Footer() {
         <div>
           <p className="font-headline text-lg italic text-on-surface">Femmely</p>
           <p className="font-label mt-2 max-w-sm text-xs tracking-wide text-on-surface-variant">
-            Curated outfit boards and practical sizing help for exploring women&apos;s fashion.
+            Curated outfit boards and practical sizing help for exploring femme fashion.
           </p>
         </div>
         <nav className="flex flex-wrap items-start gap-x-8 gap-y-3 md:justify-center">

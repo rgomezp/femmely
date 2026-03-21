@@ -17,12 +17,12 @@ export default function AboutPage() {
           you might save for inspiration—with clear links to shop the pieces on Amazon when we can match them.
         </p>
         <p>
-          We focus on practical, welcoming guidance for people exploring women&apos;s fashion, including sizing tools
+          We focus on practical, welcoming guidance for people exploring femme fashion, including sizing tools
           that translate common men&apos;s measurements into useful women&apos;s size starting points. Charts are
           educational, not a substitute for trying things on or reading brand-specific guides.
         </p>
         <p>
-          Femmely is operated by Honey Wolf LLC. Editorial choices (which outfits to feature, how they&apos;re
+          Editorial choices (which outfits to feature, how they&apos;re
           described) are ours. Product availability and prices come from Amazon when you click through—we refresh
           listings regularly, but only Amazon&apos;s site is authoritative at checkout.
         </p>

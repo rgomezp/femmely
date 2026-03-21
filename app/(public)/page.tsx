@@ -25,7 +25,7 @@ export default async function HomePage() {
         <div className="flex flex-col items-start justify-between gap-10 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <h1 className="font-headline text-5xl font-bold tracking-tight leading-tight text-on-surface md:text-7xl">
-              Thoughtful fashion <span className="font-normal italic">curation</span> for every closet
+              Your guide to <span className="font-normal italic">femme</span> fashion
             </h1>
             <p className="font-body mt-6 max-w-md text-lg leading-relaxed text-on-surface-variant">
               Browse styled looks, tap through to Amazon, and use our sizing translator when you need a women&apos;s
