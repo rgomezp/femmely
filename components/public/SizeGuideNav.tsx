@@ -9,7 +9,7 @@ export function SizeGuideNav({ active }: { active: string }) {
           <Link
             key={slug}
             href={`/size-guide/${slug}`}
-            className={`font-label min-h-11 shrink-0 whitespace-nowrap rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${
+            className={`font-label inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${
               active === slug
                 ? "bg-primary text-on-primary"
                 : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"

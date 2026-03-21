@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   categories,
@@ -96,6 +96,10 @@ export async function listPublishedOutfits(options?: {
   offset?: number;
   /** When set, only these published outfits (intersects with category/tag filters). */
   ids?: string[];
+  /** Only outfits marked featured in admin. */
+  featuredOnly?: boolean;
+  /** Exclude one outfit (e.g. current page). */
+  excludeOutfitId?: string;
 }) {
   const limit = options?.limit ?? 24;
   const offset = options?.offset ?? 0;
@@ -142,6 +146,8 @@ export async function listPublishedOutfits(options?: {
   if (outfitIds) conds.push(inArray(outfits.id, outfitIds));
   if (options?.season) conds.push(eq(outfits.season, options.season));
   if (options?.occasion) conds.push(eq(outfits.occasion, options.occasion));
+  if (options?.featuredOnly) conds.push(eq(outfits.featured, true));
+  if (options?.excludeOutfitId) conds.push(ne(outfits.id, options.excludeOutfitId));
 
   const whereClause = and(...conds);
 
@@ -201,7 +207,7 @@ export async function getFeaturedOutfit() {
   return row[0] ?? null;
 }
 
-/** Featured outfit with main image for homepage hero. */
+/** Newest published featured outfit; carousel on outfit pages uses `listPublishedOutfits({ featuredOnly: true })`. */
 export async function getFeaturedOutfitWithCardImage(): Promise<(Outfit & { cardImageUrl: string }) | null> {
   const row = await getFeaturedOutfit();
   if (!row) return null;

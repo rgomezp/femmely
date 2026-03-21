@@ -50,7 +50,7 @@ export function DirectSizeConverter({
       <label className="block font-body text-sm font-medium text-on-surface">
         {map.label}
         <select
-          className="mt-2 w-full min-h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
+          className="mt-2 h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
           value={value}
           onChange={(e) => {
             setValue(e.target.value);

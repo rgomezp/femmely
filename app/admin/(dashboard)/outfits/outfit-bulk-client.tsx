@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { FeaturedTooltipHint } from "@/components/admin/FeaturedTooltipHint";
 import type { Outfit } from "@/lib/db/schema";
+
+const actionClass =
+  "inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-lg border px-2.5 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
   const router = useRouter();
@@ -76,20 +80,25 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
           type="button"
           disabled={busy || sel.size === 0}
           onClick={bulkDelete}
-          className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 disabled:opacity-50"
+          className="cursor-pointer rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-900 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Delete selected ({sel.size})
         </button>
       </div>
       <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[640px] text-left text-sm text-neutral-800">
           <thead className="border-b border-neutral-200 bg-neutral-50">
             <tr>
               <th className="p-3 w-10" />
-              <th className="p-3">Title</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Featured</th>
-              <th className="p-3">Actions</th>
+              <th className="p-3 font-medium">Title</th>
+              <th className="p-3 font-medium">Status</th>
+              <th className="p-3 font-medium">
+                <span className="inline-flex items-center gap-1.5">
+                  Featured
+                  <FeaturedTooltipHint />
+                </span>
+              </th>
+              <th className="p-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -99,17 +108,20 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
                   <input type="checkbox" checked={sel.has(o.id)} onChange={() => toggle(o.id)} />
                 </td>
                 <td className="p-3 font-medium">{o.title}</td>
-                <td className="p-3">{o.status}</td>
-                <td className="p-3">{o.featured ? "Yes" : "—"}</td>
+                <td className="p-3 font-normal capitalize">{o.status}</td>
+                <td className="p-3 font-normal">{o.featured ? "Yes" : "—"}</td>
                 <td className="p-3">
-                  <div className="flex flex-wrap gap-2">
-                    <Link href={`/admin/outfits/${o.id}/edit`} className="text-[#e8485c]">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Link
+                      href={`/admin/outfits/${o.id}/edit`}
+                      className={`${actionClass} border-blue-200 bg-white text-blue-800 hover:bg-blue-50`}
+                    >
                       Edit
                     </Link>
                     <button
                       type="button"
                       disabled={busy}
-                      className="text-neutral-600"
+                      className={`${actionClass} border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50`}
                       onClick={() =>
                         quickPut(o.id, { status: o.status === "published" ? "draft" : "published" })
                       }
@@ -119,7 +131,7 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
                     <button
                       type="button"
                       disabled={busy}
-                      className="text-neutral-600"
+                      className={`${actionClass} border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50`}
                       onClick={() => quickPut(o.id, { featured: !o.featured })}
                     >
                       Toggle feature
@@ -127,7 +139,7 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
                     <button
                       type="button"
                       disabled={busy}
-                      className="text-red-600"
+                      className={`${actionClass} border-red-200 bg-red-50 text-red-900 hover:bg-red-100`}
                       onClick={() => deleteOne(o.id, o.title)}
                     >
                       Delete

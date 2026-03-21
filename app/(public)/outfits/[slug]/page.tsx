@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { AffiliateDisclosure } from "@/components/public/AffiliateDisclosure";
 import { BoardItemCard } from "@/components/public/BoardItemCard";
 import { BookmarkButton } from "@/components/public/BookmarkButton";
+import { FeaturedOutfitsCarousel } from "@/components/public/FeaturedOutfitsCarousel";
 import { OutfitCard } from "@/components/public/OutfitCard";
 import { MasonryGrid } from "@/components/public/MasonryGrid";
 import { getCachedAmazonItem } from "@/lib/amazon";
@@ -90,7 +91,15 @@ export default async function OutfitPage({ params }: Props) {
 
   const categoryIds = cats.map((c) => c.category.id);
   const tagIds = tgs.map((t) => t.tag.id);
-  const relatedRaw = await getRelatedOutfits(outfit.id, categoryIds, tagIds, 8);
+  const [featuredForCarousel, relatedRaw] = await Promise.all([
+    listPublishedOutfits({
+      featuredOnly: true,
+      excludeOutfitId: outfit.id,
+      limit: 12,
+      sort: "newest",
+    }),
+    getRelatedOutfits(outfit.id, categoryIds, tagIds, 8),
+  ]);
   let relatedCards = await outfitsWithItemCounts(
     relatedRaw.filter((o) => o.id !== outfit.id).slice(0, 6),
   );
@@ -235,6 +244,10 @@ export default async function OutfitPage({ params }: Props) {
               </MasonryGrid>
             </div>
           </section>
+        ) : null}
+
+        {featuredForCarousel.length > 0 ? (
+          <FeaturedOutfitsCarousel outfits={featuredForCarousel} />
         ) : null}
       </div>
     </article>

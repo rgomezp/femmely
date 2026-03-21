@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { FeaturedTooltipHint } from "./FeaturedTooltipHint";
 import { AsinLookup } from "./AsinLookup";
 import { ImageDropzone } from "./ImageDropzone";
 import { ItemSortableList, type DraftOutfitItem } from "./ItemSortableList";
@@ -321,10 +322,13 @@ export function OutfitForm({
               </button>
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
-            Featured on homepage
-          </label>
+          <div className="flex items-center gap-2 text-sm">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
+              Featured in outfit carousel
+            </label>
+            <FeaturedTooltipHint />
+          </div>
           <div>
             <label className="text-sm font-medium">Sort order</label>
             <input

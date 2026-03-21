@@ -21,19 +21,19 @@ export function OutfitFilters({ categories }: { categories: Category[] }) {
         <span className="font-label text-xs uppercase tracking-widest text-on-surface-variant">Sort:</span>
         <Link
           href={href((p) => p.delete("sort"))}
-          className={`font-label min-h-9 rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sort === "newest" ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
+          className={`font-label inline-flex min-h-9 items-center justify-center rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sort === "newest" ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
         >
           Newest
         </Link>
         <Link
           href={href((p) => p.set("sort", "items"))}
-          className={`font-label min-h-9 rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sort === "items" ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
+          className={`font-label inline-flex min-h-9 items-center justify-center rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sort === "items" ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
         >
           Most items
         </Link>
         <Link
           href={href((p) => p.set("sort", "title"))}
-          className={`font-label min-h-9 rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sort === "title" ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
+          className={`font-label inline-flex min-h-9 items-center justify-center rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sort === "title" ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
         >
           A–Z
         </Link>
@@ -43,7 +43,7 @@ export function OutfitFilters({ categories }: { categories: Category[] }) {
           <span className="font-label text-xs uppercase tracking-widest text-on-surface-variant">Category:</span>
           <Link
             href={href((p) => p.delete("category"))}
-            className={`font-label min-h-9 rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${!sp.get("category") ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
+            className={`font-label inline-flex min-h-9 items-center justify-center rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${!sp.get("category") ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
           >
             All
           </Link>
@@ -51,7 +51,7 @@ export function OutfitFilters({ categories }: { categories: Category[] }) {
             <Link
               key={c.id}
               href={href((p) => p.set("category", c.slug))}
-              className={`font-label min-h-9 rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sp.get("category") === c.slug ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
+              className={`font-label inline-flex min-h-9 items-center justify-center rounded-xl px-4 py-2 text-xs uppercase tracking-widest ${sp.get("category") === c.slug ? "bg-primary text-on-primary" : "bg-surface-container-low text-on-surface hover:bg-surface-container-high"}`}
             >
               {c.name}
             </Link>
