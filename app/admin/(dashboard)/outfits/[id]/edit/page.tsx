@@ -10,6 +10,7 @@ import {
   listCategories,
   listTags,
 } from "@/lib/queries";
+import { getAmazonPartnerTagResolved } from "@/lib/site-settings";
 import type { DraftOutfitItem } from "@/components/admin/ItemSortableList";
 
 type Props = { params: Promise<{ id: string }> };
@@ -20,12 +21,13 @@ export default async function EditOutfitPage({ params }: Props) {
   const outfit = row[0];
   if (!outfit) notFound();
 
-  const [items, catIds, tagIds, categories, tags] = await Promise.all([
+  const [items, catIds, tagIds, categories, tags, partnerTag] = await Promise.all([
     getOutfitItems(id),
     getOutfitCategoryIds(id),
     getOutfitTagIds(id),
     listCategories(),
     listTags(),
+    getAmazonPartnerTagResolved(),
   ]);
 
   const initialItems: DraftOutfitItem[] = items.map((i) => ({
@@ -47,7 +49,7 @@ export default async function EditOutfitPage({ params }: Props) {
       <OutfitForm
         mode="edit"
         outfit={outfit}
-        amazonPartnerTag={process.env.AMAZON_PARTNER_TAG}
+        amazonPartnerTag={partnerTag || undefined}
         amazonDefaultMarketplace={process.env.AMAZON_MARKETPLACE ?? "www.amazon.com"}
         initialItems={initialItems}
         initialCategoryIds={catIds}

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
-  if (!amazonConfigured()) {
+  if (!(await amazonConfigured())) {
     return NextResponse.json(
       { error: "Amazon Creators API is not configured in environment variables." },
       { status: 503 },

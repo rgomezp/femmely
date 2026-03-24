@@ -1,8 +1,13 @@
 import { OutfitForm } from "@/components/admin/OutfitForm";
 import { listCategories, listTags } from "@/lib/queries";
+import { getAmazonPartnerTagResolved } from "@/lib/site-settings";
 
 export default async function NewOutfitPage() {
-  const [categories, tags] = await Promise.all([listCategories(), listTags()]);
+  const [categories, tags, partnerTag] = await Promise.all([
+    listCategories(),
+    listTags(),
+    getAmazonPartnerTagResolved(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -11,7 +16,7 @@ export default async function NewOutfitPage() {
         mode="create"
         categories={categories}
         tags={tags}
-        amazonPartnerTag={process.env.AMAZON_PARTNER_TAG}
+        amazonPartnerTag={partnerTag || undefined}
         amazonDefaultMarketplace={process.env.AMAZON_MARKETPLACE ?? "www.amazon.com"}
       />
     </div>

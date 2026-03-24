@@ -6,6 +6,7 @@ import {
   TypedDefaultApi,
 } from "amazon-creators-api";
 import { unstable_cache } from "next/cache";
+import { getAmazonPartnerTagResolved } from "@/lib/site-settings";
 
 export type LiveAmazonProduct = {
   asin: string;
@@ -18,16 +19,12 @@ export type LiveAmazonProduct = {
   availability: string | null;
 };
 
-function partnerTag(): string {
-  return process.env.AMAZON_PARTNER_TAG?.trim() || "";
-}
-
 function marketplaceHost(): string {
   return process.env.AMAZON_MARKETPLACE?.trim() || "www.amazon.com";
 }
 
-function withAffiliateTag(url: string, asin: string): string {
-  const tag = partnerTag();
+async function withAffiliateTag(url: string, asin: string): Promise<string> {
+  const tag = await getAmazonPartnerTagResolved();
   if (!tag) {
     return url || `https://www.amazon.com/dp/${asin}`;
   }
@@ -48,14 +45,20 @@ function creatorsApiClient(): TypedDefaultApi {
   return new TypedDefaultApi(apiClient);
 }
 
-/** Creators API (replaces PA-API 5). See https://affiliate-program.amazon.com/creatorsapi/docs/en-us/introduction */
-export function amazonConfigured(): boolean {
+/** API credentials only (no partner tag check). */
+export function amazonCreatorsCredentialsConfigured(): boolean {
   return Boolean(
     process.env.AMAZON_CREDENTIAL_ID?.trim() &&
       process.env.AMAZON_CREDENTIAL_SECRET?.trim() &&
-      process.env.AMAZON_CREDENTIAL_VERSION?.trim() &&
-      process.env.AMAZON_PARTNER_TAG?.trim(),
+      process.env.AMAZON_CREDENTIAL_VERSION?.trim(),
   );
+}
+
+/** Credentials plus a non-empty resolved Associates partner tag (env or DB override). */
+export async function amazonConfigured(): Promise<boolean> {
+  if (!amazonCreatorsCredentialsConfigured()) return false;
+  const tag = await getAmazonPartnerTagResolved();
+  return tag.length > 0;
 }
 
 const GET_ITEM_RESOURCES = [
@@ -67,10 +70,11 @@ const GET_ITEM_RESOURCES = [
 ].map((r) => GetItemsResource.constructFromObject(r));
 
 export async function fetchAmazonItem(asin: string): Promise<LiveAmazonProduct | null> {
-  if (!amazonConfigured()) return null;
+  if (!(await amazonConfigured())) return null;
 
+  const tag = await getAmazonPartnerTagResolved();
   const api = creatorsApiClient();
-  const req = new GetItemsRequestContent(partnerTag(), [asin.toUpperCase()]);
+  const req = new GetItemsRequestContent(tag, [asin.toUpperCase()]);
   req.resources = GET_ITEM_RESOURCES;
 
   const response = await api.getItems(marketplaceHost(), req);
@@ -106,7 +110,7 @@ export async function fetchAmazonItem(asin: string): Promise<LiveAmazonProduct |
     priceCents,
     currency,
     detailUrl,
-    affiliateUrl: withAffiliateTag(detailUrl, resolvedAsin),
+    affiliateUrl: await withAffiliateTag(detailUrl, resolvedAsin),
     availability: listing?.availability?.message ?? null,
   };
 }
