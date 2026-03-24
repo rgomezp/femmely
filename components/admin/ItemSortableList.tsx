@@ -72,8 +72,62 @@ function SortableRow({
           <input
             value={item.title}
             onChange={(e) => onChange(item.tempId, { title: e.target.value })}
+            placeholder="Product title"
             className="w-full rounded-lg border border-neutral-200 px-2 py-1 text-sm font-medium"
           />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div>
+              <label className="text-xs text-neutral-500">ASIN</label>
+              <input
+                value={item.asin}
+                onChange={(e) =>
+                  onChange(item.tempId, { asin: e.target.value.toUpperCase().replace(/\s/g, "") })
+                }
+                placeholder="B0XXXXXXXX"
+                className="mt-0.5 w-full rounded-lg border border-neutral-200 px-2 py-1 font-mono text-sm uppercase"
+                maxLength={20}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-neutral-500">Price (optional)</label>
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={item.priceCents != null ? (item.priceCents / 100).toFixed(2) : ""}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (raw === "") {
+                    onChange(item.tempId, { priceCents: null });
+                    return;
+                  }
+                  const n = Number.parseFloat(raw);
+                  if (Number.isNaN(n)) return;
+                  onChange(item.tempId, { priceCents: Math.round(n * 100) });
+                }}
+                placeholder="0.00"
+                className="mt-0.5 w-full rounded-lg border border-neutral-200 px-2 py-1 text-sm"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-neutral-500">Image URL</label>
+            <input
+              value={item.imageUrl}
+              onChange={(e) => onChange(item.tempId, { imageUrl: e.target.value })}
+              placeholder="https://m.media-amazon.com/…"
+              className="mt-0.5 w-full rounded-lg border border-neutral-200 px-2 py-1 text-xs"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-neutral-500">Affiliate / product link</label>
+            <input
+              value={item.affiliateUrl}
+              onChange={(e) => onChange(item.tempId, { affiliateUrl: e.target.value })}
+              placeholder="https://www.amazon.com/dp/…?tag=your-tag-20"
+              className="mt-0.5 w-full rounded-lg border border-neutral-200 px-2 py-1 text-xs"
+            />
+          </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div>
               <label className="text-xs text-neutral-500">Label</label>
@@ -91,7 +145,6 @@ function SortableRow({
               />
             </div>
           </div>
-          <p className="truncate text-xs text-neutral-400">ASIN {item.asin}</p>
         </div>
         <button
           type="button"
