@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { AmazonUrlImport } from "./AmazonUrlImport";
 import { FeaturedTooltipHint } from "./FeaturedTooltipHint";
 import { AsinLookup } from "./AsinLookup";
 import { ImageDropzone } from "./ImageDropzone";
@@ -32,6 +33,8 @@ export function OutfitForm({
   initialTagIds,
   categories,
   tags: tagsProp,
+  amazonPartnerTag,
+  amazonDefaultMarketplace = "www.amazon.com",
 }: {
   mode: "create" | "edit";
   outfit?: OutfitRow;
@@ -40,6 +43,10 @@ export function OutfitForm({
   initialTagIds?: string[];
   categories: Cat[];
   tags: Tg[];
+  /** From `AMAZON_PARTNER_TAG` — used to build clean affiliate links in step 2. */
+  amazonPartnerTag?: string;
+  /** From `AMAZON_MARKETPLACE` — default host for bare ASIN paste (e.g. www.amazon.com). */
+  amazonDefaultMarketplace?: string;
 }) {
   const router = useRouter();
   const [tags, setTags] = useState(tagsProp);
@@ -88,13 +95,23 @@ export function OutfitForm({
     setNewTagName("");
   }
 
-  async function save(publish: boolean) {
+  async function save(publish: boolean, options?: { navigateToList?: boolean }) {
+    const navigateToList = options?.navigateToList ?? true;
     setError(null);
     setSaving(true);
     try {
       if (!title.trim()) throw new Error("Title required");
       if (publish && !mainImageUrl.trim()) {
         throw new Error("Upload a main outfit image before publishing (used in browse grids)");
+      }
+      for (const it of previewItems) {
+        const a = it.asin.trim();
+        if (a.length < 10 || a.length > 20) {
+          throw new Error("Each product needs a valid ASIN (10 characters).");
+        }
+        if (!it.title.trim()) throw new Error("Each product needs a title.");
+        if (!it.affiliateUrl.trim()) throw new Error("Each product needs an affiliate or product link.");
+        if (!it.imageUrl.trim()) throw new Error("Each product needs an image URL.");
       }
       const st = publish ? "published" : "draft";
 
@@ -167,8 +184,9 @@ export function OutfitForm({
         await fetch(`/api/admin/outfits/${oid}/items?itemId=${sid}`, { method: "DELETE" });
       }
 
-      for (let i = 0; i < previewItems.length; i++) {
-        const it = previewItems[i];
+      const nextItems: DraftOutfitItem[] = previewItems.map((it) => ({ ...it }));
+      for (let i = 0; i < nextItems.length; i++) {
+        const it = nextItems[i];
         const body = {
           asin: it.asin,
           title: it.title,
@@ -181,23 +199,35 @@ export function OutfitForm({
           sortOrder: i,
         };
         if (it.serverId) {
-          await fetch(`/api/admin/outfits/${oid}/items`, {
+          const ir = await fetch(`/api/admin/outfits/${oid}/items`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ itemId: it.serverId, ...body }),
           });
+          if (!ir.ok) throw new Error("Failed to update an item");
         } else {
-          await fetch(`/api/admin/outfits/${oid}/items`, {
+          const ir = await fetch(`/api/admin/outfits/${oid}/items`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
           });
+          const data = await ir.json().catch(() => ({}));
+          if (!ir.ok) throw new Error("Failed to save an item");
+          const newId = data.item?.id as string | undefined;
+          if (newId) {
+            nextItems[i] = { ...it, serverId: newId };
+          }
         }
       }
 
+      setItems(nextItems);
+      setDeletedServerIds([]);
+
       await fetch("/api/admin/revalidate", { method: "POST", body: JSON.stringify({}) });
-      router.push("/admin/outfits");
       router.refresh();
+      if (navigateToList) {
+        router.push("/admin/outfits");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
     } finally {
@@ -221,6 +251,31 @@ export function OutfitForm({
       </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+      {mode === "edit" && step < 3 ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <span className="mr-1 text-sm font-medium text-neutral-700">Save from this step</span>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => {
+              setStatus("draft");
+              save(false, { navigateToList: false });
+            }}
+            className="rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium"
+          >
+            Update draft
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => save(true, { navigateToList: false })}
+            className="rounded-xl bg-[#e8485c] px-4 py-2 text-sm font-semibold text-white"
+          >
+            Publish
+          </button>
+        </div>
+      ) : null}
 
       {step === 1 ? (
         <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-6">
@@ -345,8 +400,30 @@ export function OutfitForm({
         <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-6">
           <h2 className="font-semibold">Items</h2>
           <p className="text-sm text-neutral-600">
-            Add products by ASIN. Amazon images appear in the outfit sidebar and on item detail pages.
+            ASIN lookup uses the Creators API when it is enabled in your environment. Amazon often requires
+            qualifying Associates sales before API access—until then, paste Amazon URLs or ASINs below (we strip
+            tracking params and apply your partner tag), or add rows manually.
           </p>
+          <AmazonUrlImport
+            partnerTag={amazonPartnerTag}
+            defaultMarketplaceHost={amazonDefaultMarketplace}
+            onAdd={({ asin, affiliateUrl }) =>
+              setItems((prev) => [
+                ...prev,
+                {
+                  tempId: crypto.randomUUID(),
+                  asin,
+                  title: "",
+                  affiliateUrl,
+                  imageUrl: "",
+                  priceCents: null,
+                  currency: "USD",
+                  displayLabel: "Item",
+                  garmentCategory: "none",
+                },
+              ])
+            }
+          />
           <AsinLookup
             onProduct={(p) =>
               setItems((prev) => [
@@ -365,6 +442,28 @@ export function OutfitForm({
               ])
             }
           />
+          <button
+            type="button"
+            onClick={() =>
+              setItems((prev) => [
+                ...prev,
+                {
+                  tempId: crypto.randomUUID(),
+                  asin: "",
+                  title: "",
+                  affiliateUrl: "",
+                  imageUrl: "",
+                  priceCents: null,
+                  currency: "USD",
+                  displayLabel: "Item",
+                  garmentCategory: "none",
+                },
+              ])
+            }
+            className="rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800"
+          >
+            Add item manually
+          </button>
           <ItemSortableList
             items={items}
             onReorder={setItems}
@@ -392,16 +491,16 @@ export function OutfitForm({
               disabled={saving}
               onClick={() => {
                 setStatus("draft");
-                save(false);
+                save(false, { navigateToList: true });
               }}
               className="rounded-xl border border-neutral-300 px-4 py-2 text-sm font-medium"
             >
-              Save draft
+              {mode === "edit" ? "Update draft" : "Save draft"}
             </button>
             <button
               type="button"
               disabled={saving}
-              onClick={() => save(true)}
+              onClick={() => save(true, { navigateToList: true })}
               className="rounded-xl bg-[#e8485c] px-4 py-2 text-sm font-semibold text-white"
             >
               Publish

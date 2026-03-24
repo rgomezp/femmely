@@ -47,6 +47,8 @@ export default async function EditOutfitPage({ params }: Props) {
       <OutfitForm
         mode="edit"
         outfit={outfit}
+        amazonPartnerTag={process.env.AMAZON_PARTNER_TAG}
+        amazonDefaultMarketplace={process.env.AMAZON_MARKETPLACE ?? "www.amazon.com"}
         initialItems={initialItems}
         initialCategoryIds={catIds}
         initialTagIds={tagIds}
