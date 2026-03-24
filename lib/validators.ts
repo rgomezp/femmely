@@ -44,6 +44,12 @@ export const updateOutfitSchema = z.object({
   tagIds: z.array(z.string().uuid()).optional(),
 });
 
+export const adminSiteSettingsPatchSchema = z.object({
+  /** `null` clears DB override (use env only). Empty string stores explicit no tag. */
+  amazonPartnerTagOverride: z.union([z.string().max(64), z.null()]),
+  bulkRetagAffiliateUrls: z.boolean().optional(),
+});
+
 export const outfitItemInputSchema = z.object({
   asin: z.string().min(10).max(20),
   title: z.string().min(1).max(255),
