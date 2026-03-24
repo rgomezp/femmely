@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
   if (!amazonConfigured()) {
     return NextResponse.json(
-      { error: "Amazon PA-API is not configured in environment variables." },
+      { error: "Amazon Creators API is not configured in environment variables." },
       { status: 503 },
     );
   }
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ product });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "PA-API error";
+    const message = e instanceof Error ? e.message : "Creators API error";
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }

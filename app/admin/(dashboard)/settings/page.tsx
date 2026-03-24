@@ -32,7 +32,7 @@ export default function AdminSettingsPage() {
           <span className={blobOk ? "text-emerald-600" : "text-amber-600"}>{blobOk ? "Set" : "Optional"}</span>
         </li>
         <li className="flex justify-between">
-          <span>Amazon PA-API</span>
+          <span>Amazon Creators API</span>
           <span className={amazonConfigured() ? "text-emerald-600" : "text-amber-600"}>
             {amazonConfigured() ? "Configured" : "Not configured"}
           </span>
