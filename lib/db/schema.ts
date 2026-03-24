@@ -11,6 +11,12 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+/** Single row (id = 1). `amazonPartnerTagOverride` null means use `AMAZON_PARTNER_TAG` from env. */
+export const siteSettings = pgTable("site_settings", {
+  id: integer("id").primaryKey().default(1).notNull(),
+  amazonPartnerTagOverride: text("amazon_partner_tag_override"),
+});
+
 export const outfitStatusEnum = pgEnum("outfit_status", ["draft", "published"]);
 
 export const outfits = pgTable(
@@ -101,6 +107,8 @@ export const outfitTags = pgTable(
   },
   (t) => [primaryKey({ columns: [t.outfitId, t.tagId] })],
 );
+
+export type SiteSettings = typeof siteSettings.$inferSelect;
 
 export type Outfit = typeof outfits.$inferSelect;
 export type NewOutfit = typeof outfits.$inferInsert;
