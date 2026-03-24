@@ -192,7 +192,7 @@ export async function listPublishedOutfits(options?: {
   return page.map((r) => ({
     ...r,
     cardImageUrl:
-      firstItemImages?.get(r.outfit.id) ?? r.outfit.mainImageUrl ?? "",
+      r.outfit.mainImageUrl ?? firstItemImages?.get(r.outfit.id) ?? "",
     primaryCategoryName: categoryMap.get(r.outfit.id),
   }));
 }
