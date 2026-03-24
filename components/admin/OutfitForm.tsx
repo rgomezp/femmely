@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AmazonUrlImport } from "./AmazonUrlImport";
+import { CatalogItemSearch } from "./CatalogItemSearch";
 import { FeaturedTooltipHint } from "./FeaturedTooltipHint";
 import { AsinLookup } from "./AsinLookup";
 import { ImageDropzone } from "./ImageDropzone";
@@ -464,6 +465,18 @@ export function OutfitForm({
           >
             Add item manually
           </button>
+          <CatalogItemSearch
+            excludeOutfitId={mode === "edit" && outfit ? outfit.id : undefined}
+            onAdd={(row) =>
+              setItems((prev) => [
+                ...prev,
+                {
+                  tempId: crypto.randomUUID(),
+                  ...row,
+                },
+              ])
+            }
+          />
           <ItemSortableList
             items={items}
             onReorder={setItems}
