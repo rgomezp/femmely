@@ -27,6 +27,8 @@ Masonry-style outfit boards with Amazon Creators API product data, Vercel Postgr
 
    (`drizzle.config.ts` loads `.env` then `.env.local`, so `DATABASE_URL` is picked up the same way as Next.js.)
 
+   After pulling changes that add tables (e.g. `site_settings`), run `yarn db:push` again so production and local DBs stay in sync.
+
 4. **Admin password** — Next.js expands `$VAR` inside `.env` values. Bcrypt hashes look like `$2a$10$…`, so a plain `ADMIN_PASSWORD_HASH` is often **corrupted** and login always fails. **Use base64** (recommended):
 
    ```bash
