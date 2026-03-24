@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -35,6 +36,28 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
       });
       if (!res.ok) throw new Error();
       setSel(new Set());
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeMainImage(id: string, title: string) {
+    if (
+      !confirm(
+        `Remove the board image from “${title}”? The file will be deleted from storage when hosted on Vercel Blob, and the outfit record will no longer reference an image.`,
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/outfits/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mainImageUrl: "" }),
+      });
+      if (!res.ok) throw new Error();
       router.refresh();
     } finally {
       setBusy(false);
@@ -90,6 +113,7 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
           <thead className="border-b border-neutral-200 bg-neutral-50">
             <tr>
               <th className="p-3 w-10" />
+              <th className="p-3 w-28 font-medium">Image</th>
               <th className="p-3 font-medium">Title</th>
               <th className="p-3 font-medium">Status</th>
               <th className="p-3 font-medium">
@@ -102,52 +126,84 @@ export function OutfitBulkClient({ outfits }: { outfits: Outfit[] }) {
             </tr>
           </thead>
           <tbody>
-            {outfits.map((o) => (
-              <tr key={o.id} className="border-b border-neutral-100">
-                <td className="p-3">
-                  <input type="checkbox" checked={sel.has(o.id)} onChange={() => toggle(o.id)} />
-                </td>
-                <td className="p-3 font-medium">{o.title}</td>
-                <td className="p-3 font-normal capitalize">{o.status}</td>
-                <td className="p-3 font-normal">{o.featured ? "Yes" : "—"}</td>
-                <td className="p-3">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <Link
-                      href={`/admin/outfits/${o.id}/edit`}
-                      className={`${actionClass} border-blue-200 bg-white text-blue-800 hover:bg-blue-50`}
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      className={`${actionClass} border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50`}
-                      onClick={() =>
-                        quickPut(o.id, { status: o.status === "published" ? "draft" : "published" })
-                      }
-                    >
-                      {o.status === "published" ? "Unpublish" : "Publish"}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      className={`${actionClass} border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50`}
-                      onClick={() => quickPut(o.id, { featured: !o.featured })}
-                    >
-                      Toggle feature
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      className={`${actionClass} border-red-200 bg-red-50 text-red-900 hover:bg-red-100`}
-                      onClick={() => deleteOne(o.id, o.title)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {outfits.map((o) => {
+              const mainUrl = o.mainImageUrl?.trim() ?? "";
+              return (
+                <tr key={o.id} className="border-b border-neutral-100">
+                  <td className="p-3">
+                    <input type="checkbox" checked={sel.has(o.id)} onChange={() => toggle(o.id)} />
+                  </td>
+                  <td className="p-3 align-top">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="relative h-11 w-14 shrink-0 overflow-hidden rounded-md bg-neutral-100 ring-1 ring-inset ring-neutral-200">
+                        {mainUrl ? (
+                          <Image
+                            src={mainUrl}
+                            alt=""
+                            fill
+                            className="object-cover"
+                            sizes="56px"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center px-0.5 text-center text-[10px] leading-tight text-neutral-400">
+                            None
+                          </div>
+                        )}
+                      </div>
+                      {mainUrl ? (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          className="max-w-[5.5rem] text-left text-xs font-medium text-red-800 underline decoration-red-300 underline-offset-2 transition-colors hover:text-red-950 disabled:cursor-not-allowed disabled:opacity-50"
+                          onClick={() => removeMainImage(o.id, o.title)}
+                        >
+                          Remove image
+                        </button>
+                      ) : null}
+                    </div>
+                  </td>
+                  <td className="p-3 font-medium">{o.title}</td>
+                  <td className="p-3 font-normal capitalize">{o.status}</td>
+                  <td className="p-3 font-normal">{o.featured ? "Yes" : "—"}</td>
+                  <td className="p-3">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Link
+                        href={`/admin/outfits/${o.id}/edit`}
+                        className={`${actionClass} border-blue-200 bg-white text-blue-800 hover:bg-blue-50`}
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        className={`${actionClass} border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50`}
+                        onClick={() =>
+                          quickPut(o.id, { status: o.status === "published" ? "draft" : "published" })
+                        }
+                      >
+                        {o.status === "published" ? "Unpublish" : "Publish"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        className={`${actionClass} border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-50`}
+                        onClick={() => quickPut(o.id, { featured: !o.featured })}
+                      >
+                        Toggle feature
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        className={`${actionClass} border-red-200 bg-red-50 text-red-900 hover:bg-red-100`}
+                        onClick={() => deleteOne(o.id, o.title)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

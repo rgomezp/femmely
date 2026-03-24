@@ -84,6 +84,11 @@ export async function PUT(
   if (data.categoryIds) await syncOutfitCategories(id, data.categoryIds);
   if (data.tagIds) await syncOutfitTags(id, data.tagIds);
 
+  revalidatePath("/");
+  revalidatePath("/outfits");
+  revalidatePath(`/outfits/${updated.slug}`);
+  revalidatePath("/sitemap.xml");
+
   return NextResponse.json({ outfit: updated });
 }
 
