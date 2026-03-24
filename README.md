@@ -1,13 +1,13 @@
 # Femmely.club
 
-Masonry-style outfit boards with Amazon PA-API product data, Vercel Postgres + Drizzle, Vercel Blob uploads, NextAuth v5 (credentials), and static men’s → women’s sizing tools.
+Masonry-style outfit boards with Amazon Creators API product data, Vercel Postgres + Drizzle, Vercel Blob uploads, NextAuth v5 (credentials), and static men’s → women’s sizing tools.
 
 ## Prerequisites
 
 - Node 20+
 - [Yarn 1.22](https://classic.yarnpkg.com/) (see `packageManager` in `package.json`)
 - Vercel Postgres (Neon) database
-- Optional: Vercel Blob, Amazon PA-API credentials for live product lookup
+- Optional: Vercel Blob, Amazon Creators API credentials for live product lookup
 
 ## Setup
 
@@ -77,17 +77,25 @@ Masonry-style outfit boards with Amazon PA-API product data, Vercel Postgres + D
 4. Run `yarn db:push` against production `DATABASE_URL` once (locally with prod URL or via Vercel CLI).
 5. Add your **Vercel Blob** host to [`next.config.ts`](next.config.ts) under `images.remotePatterns` if `next/image` should optimize board photo uploads (pattern depends on your blob hostname).
 
-## Amazon PA-API
-You only need this for ASIN lookup in the admin. You can leave these blank until your Associates / PA-API access is ready.
+## Amazon Creators API
 
-When ready, from Amazon’s PA-API / Associates setup:
+PA-API 5 is being retired; new integrations use the [Creators API](https://affiliate-program.amazon.com/creatorsapi/docs/en-us/introduction). You only need these variables for ASIN lookup in the admin and for refreshing live title, image, and price on public pages.
+
+Register in [Associates / Creators API onboarding](https://affiliate-program.amazon.com/creatorsapi/docs/en-us/onboarding/register-for-creators-api), then set:
+
 ```sh
-AMAZON_ACCESS_KEY=...
-AMAZON_SECRET_KEY=...
+AMAZON_CREDENTIAL_ID=...
+AMAZON_CREDENTIAL_SECRET=...
+AMAZON_CREDENTIAL_VERSION=...
 AMAZON_PARTNER_TAG=yourstore-20
-AMAZON_HOST=webservices.amazon.com
-AMAZON_REGION=us-east-1
+AMAZON_MARKETPLACE=www.amazon.com
 ```
+
+`AMAZON_MARKETPLACE` is the product site hostname for `GetItems` (see Amazon’s marketplace reference in their API docs).
+
+**Bootstrap without API access:** Associates may need qualifying sales before Creators API credentials work. You can still run the site: leave the `AMAZON_CREDENTIAL_*` variables unset, and in the admin outfit editor use **Add item manually**, then paste ASIN, title, an Amazon product image URL, and your tagged affiliate link. Public pages use that stored data; when the API is available later, live title, image, and price can refresh automatically.
+
+Detailed setup once you qualify for API access: [`docs/amazon-creators-api-setup.md`](docs/amazon-creators-api-setup.md).
 
 ## Project map
 
@@ -96,10 +104,10 @@ AMAZON_REGION=us-east-1
 - **API** — `app/api/` (public read APIs + `app/api/admin/*`).
 - **DB** — `lib/db/schema.ts`, migrations in `lib/db/migrations/`. Each **outfit** has a single admin-uploaded **`main_image_url`** (Blob) for masonry cards; **items** store Amazon `image_url` only (sidebar + item detail).
 - **Sizing data** — `lib/sizing/` (typed static converters).
-- **Amazon** — `lib/amazon.ts` (PA-API 5 `GetItems`); `paapi5-nodejs-sdk` is listed in `serverExternalPackages` for compatibility with `next build`.
+- **Amazon** — `lib/amazon.ts` (Creators API `GetItems` via [`amazon-creators-api`](https://www.npmjs.com/package/amazon-creators-api)).
 
 ## Compliance notes
 
 - Affiliate disclosure component: [`components/public/AffiliateDisclosure.tsx`](components/public/AffiliateDisclosure.tsx).
-- Product images on outfit pages are refreshed via PA-API where configured; DB `image_url` is fallback.
+- Product images on outfit pages are refreshed via the Creators API where configured; DB `image_url` is fallback.
 - `robots.txt` disallows `/admin` and `/api/admin` via [`app/robots.ts`](app/robots.ts).
