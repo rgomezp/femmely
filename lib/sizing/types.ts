@@ -81,7 +81,7 @@ export type SizeConverter =
 export const GARMENT_CATEGORY_LABELS: Record<GarmentCategory, string> = {
   shoes: "Shoes",
   tops: "Tops & Blouses",
-  "bottoms-pants": "Pants & Jeans",
+  "bottoms-pants": "Pants, Jeans & Shorts",
   "bottoms-skirts": "Skirts",
   dresses: "Dresses",
   bras: "Bras",
