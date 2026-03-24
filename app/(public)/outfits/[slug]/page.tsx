@@ -4,11 +4,11 @@ import type { Metadata } from "next";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AffiliateDisclosure } from "@/components/public/AffiliateDisclosure";
-import { BoardItemCard } from "@/components/public/BoardItemCard";
 import { BookmarkButton } from "@/components/public/BookmarkButton";
 import { FeaturedOutfitsCarousel } from "@/components/public/FeaturedOutfitsCarousel";
 import { OutfitCard } from "@/components/public/OutfitCard";
 import { MasonryGrid } from "@/components/public/MasonryGrid";
+import { OutfitItemRowCard } from "@/components/public/OutfitItemRowCard";
 import { getCachedAmazonItem } from "@/lib/amazon";
 import { mergeItemDisplay } from "@/lib/merge-product";
 import {
@@ -108,6 +108,21 @@ export default async function OutfitPage({ params }: Props) {
     relatedCards = fallback.filter((r) => r.outfit.id !== outfit.id).slice(0, 6);
   }
 
+  const itemRowNodes = displayItems.map((item) => (
+    <OutfitItemRowCard
+      key={item.id}
+      imageUrl={item.primaryImageUrl}
+      title={item.title}
+      price_cents={item.priceCents}
+      currency={item.currency}
+      outfitSlug={slug}
+      itemId={item.id}
+      garmentCategory={item.garmentCategory}
+      displayLabel={item.displayLabel}
+      affiliateUrl={item.affiliateUrl}
+    />
+  ));
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -184,42 +199,54 @@ export default async function OutfitPage({ params }: Props) {
           ))}
         </div>
 
-        {outfit.mainImageUrl ? (
-          <div className="relative mt-8 aspect-[4/3] w-full max-w-3xl overflow-hidden rounded-xl bg-surface-container shadow-card">
-            <Image
-              src={outfit.mainImageUrl}
-              alt={outfit.title}
-              fill
-              priority
-              className="object-contain"
-              sizes="(max-width: 1280px) 100vw, 800px"
-            />
-          </div>
-        ) : null}
-
-        {outfit.description ? (
-          <div className="prose-description mt-8 max-w-3xl">
-            <Markdown remarkPlugins={[remarkGfm]}>{outfit.description}</Markdown>
-          </div>
-        ) : null}
-
-        <div className="mt-10">
-          <MasonryGrid>
-            {displayItems.map((item) => (
-              <BoardItemCard
-                key={item.id}
-                imageUrl={item.primaryImageUrl}
-                title={item.title}
-                price_cents={item.priceCents}
-                currency={item.currency}
-                outfitSlug={slug}
-                itemId={item.id}
-                garmentCategory={item.garmentCategory}
-                displayLabel={item.displayLabel}
-              />
-            ))}
-          </MasonryGrid>
-        </div>
+        {displayItems.length > 0 ? (
+          outfit.mainImageUrl || outfit.description ? (
+            <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start lg:gap-10">
+              <div className="flex max-w-3xl flex-col gap-8 lg:max-w-none">
+                {outfit.mainImageUrl ? (
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-surface-container shadow-card">
+                    <Image
+                      src={outfit.mainImageUrl}
+                      alt={outfit.title}
+                      fill
+                      priority
+                      className="object-contain"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  </div>
+                ) : null}
+                {outfit.description ? (
+                  <div className="prose-description">
+                    <Markdown remarkPlugins={[remarkGfm]}>{outfit.description}</Markdown>
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-4">{itemRowNodes}</div>
+            </div>
+          ) : (
+            <div className="mt-8 flex flex-col gap-4">{itemRowNodes}</div>
+          )
+        ) : (
+          <>
+            {outfit.mainImageUrl ? (
+              <div className="relative mt-8 aspect-[4/3] w-full max-w-3xl overflow-hidden rounded-xl bg-surface-container shadow-card">
+                <Image
+                  src={outfit.mainImageUrl}
+                  alt={outfit.title}
+                  fill
+                  priority
+                  className="object-contain"
+                  sizes="(max-width: 1280px) 100vw, 800px"
+                />
+              </div>
+            ) : null}
+            {outfit.description ? (
+              <div className="prose-description mt-8 max-w-3xl">
+                <Markdown remarkPlugins={[remarkGfm]}>{outfit.description}</Markdown>
+              </div>
+            ) : null}
+          </>
+        )}
 
         {displayItems.length > 0 ? (
           <div className="mt-12">
