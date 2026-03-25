@@ -2,7 +2,10 @@
 import type { Metadata } from "next";
 import { Manrope, Noto_Serif } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
+import { GoogleAnalyticsRoute } from "@/components/GoogleAnalyticsRoute";
 import { Providers } from "@/components/providers";
+import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
 
@@ -20,8 +23,6 @@ const manrope = Manrope({
   variable: "--font-manrope",
   display: "swap",
 });
-
-const GA_MEASUREMENT_ID = "G-L0GTQYXMG5";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -66,6 +67,9 @@ export default function RootLayout({
             gtag('config', '${GA_MEASUREMENT_ID}');
           `}
         </Script>
+        <Suspense fallback={null}>
+          <GoogleAnalyticsRoute />
+        </Suspense>
         <Providers>{children}</Providers>
       </body>
     </html>
