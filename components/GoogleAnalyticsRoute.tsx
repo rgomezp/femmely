@@ -12,7 +12,7 @@ declare global {
 
 /**
  * Sends a GA4 page_view on App Router client navigations (soft loads).
- * Initial load is handled by gtag in the root layout.
+ * Initial load is handled by `GoogleAnalytics` from `@next/third-parties/google`.
  */
 export function GoogleAnalyticsRoute() {
   const pathname = usePathname();

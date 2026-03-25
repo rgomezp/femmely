@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-page-custom-font -- Material Symbols is not in next/font/google; link tag loads the icon font reliably */
 import type { Metadata } from "next";
 import { Manrope, Noto_Serif } from "next/font/google";
-import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Suspense } from "react";
 import { GoogleAnalyticsRoute } from "@/components/GoogleAnalyticsRoute";
 import { Providers } from "@/components/providers";
@@ -55,22 +55,11 @@ export default function RootLayout({
         />
       </head>
       <body className={`${notoSerif.variable} ${manrope.variable} font-body bg-surface text-on-surface`}>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}');
-          `}
-        </Script>
+        <Providers>{children}</Providers>
+        <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
         <Suspense fallback={null}>
           <GoogleAnalyticsRoute />
         </Suspense>
-        <Providers>{children}</Providers>
       </body>
     </html>
   );
