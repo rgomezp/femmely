@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-page-custom-font -- Material Symbols is not in next/font/google; link tag loads the icon font reliably */
 import type { Metadata } from "next";
 import { Manrope, Noto_Serif } from "next/font/google";
+import Script from "next/script";
 import { Providers } from "@/components/providers";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
@@ -19,6 +20,8 @@ const manrope = Manrope({
   variable: "--font-manrope",
   display: "swap",
 });
+
+const GA_MEASUREMENT_ID = "G-L0GTQYXMG5";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -51,6 +54,18 @@ export default function RootLayout({
         />
       </head>
       <body className={`${notoSerif.variable} ${manrope.variable} font-body bg-surface text-on-surface`}>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         <Providers>{children}</Providers>
       </body>
     </html>
