@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Manrope, Noto_Serif } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { siteUrl } from "@/lib/utils";
 import "./globals.css";
 
 const notoSerif = Noto_Serif({
@@ -20,7 +21,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "Femmely — Fashion discovery & size guide",
     template: "%s | Femmely",
