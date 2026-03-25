@@ -4,6 +4,7 @@ import { ItemDetail } from "@/components/public/ItemDetail";
 import { getCachedAmazonItem } from "@/lib/amazon";
 import { mergeItemDisplay } from "@/lib/merge-product";
 import { getPublishedOutfitItemBySlugAndId, getPublishedOutfitItemRoutes } from "@/lib/queries";
+import { probeImageDimensionsForOg, resolveShareImageUrl } from "@/lib/og-share-image";
 import { absoluteUrl } from "@/lib/utils";
 
 export const revalidate = 86400;
@@ -31,6 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = `${display.title} · ${outfit.title}`;
     const description =
       `${display.title} from the ${outfit.title} board on Femmely.`.slice(0, 160);
+    const rawImage = display.primaryImageUrl?.trim() || undefined;
+    const ogImageUrl = rawImage ? resolveShareImageUrl(rawImage) : undefined;
+    const ogDims = ogImageUrl ? await probeImageDimensionsForOg(ogImageUrl) : undefined;
     const url = absoluteUrl(`/outfits/${slug}/${itemId}`);
     return {
       title,
@@ -41,7 +45,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description,
         url,
         type: "website",
-        images: display.primaryImageUrl ? [{ url: display.primaryImageUrl, alt: display.title }] : undefined,
+        images: ogImageUrl
+          ? [{ url: ogImageUrl, alt: display.title, ...ogDims }]
+          : undefined,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: ogImageUrl ? [ogImageUrl] : undefined,
       },
     };
   } catch {

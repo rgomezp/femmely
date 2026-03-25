@@ -21,6 +21,7 @@ import {
   listPublishedOutfits,
   outfitsWithItemCounts,
 } from "@/lib/queries";
+import { probeImageDimensionsForOg, resolveShareImageUrl } from "@/lib/og-share-image";
 import { absoluteUrl } from "@/lib/utils";
 import type { Outfit } from "@/lib/db/schema";
 
@@ -43,17 +44,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const outfit = await getPublishedOutfitBySlug(slug);
     if (!outfit) return { title: "Outfit not found" };
-    const ogImage = outfit.mainImageUrl?.trim() || undefined;
+    const rawImage = outfit.mainImageUrl?.trim() || undefined;
+    const ogImageUrl = rawImage ? resolveShareImageUrl(rawImage) : undefined;
+    const ogDims = ogImageUrl ? await probeImageDimensionsForOg(ogImageUrl) : undefined;
     const url = absoluteUrl(`/outfits/${slug}`);
+    const description =
+      outfit.description.slice(0, 160) || `Shop the ${outfit.title} look on Femmely.`;
+    const ogDescription = outfit.description.slice(0, 200);
     return {
       title: outfit.title,
-      description: outfit.description.slice(0, 160) || `Shop the ${outfit.title} look on Femmely.`,
+      description,
       alternates: { canonical: url },
       openGraph: {
+        type: "website",
         title: outfit.title,
-        description: outfit.description.slice(0, 200),
+        description: ogDescription,
         url,
-        images: ogImage ? [{ url: ogImage, alt: outfit.title }] : undefined,
+        images: ogImageUrl
+          ? [{ url: ogImageUrl, alt: outfit.title, ...ogDims }]
+          : undefined,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: outfit.title,
+        description: ogDescription,
+        images: ogImageUrl ? [ogImageUrl] : undefined,
       },
     };
   } catch {
