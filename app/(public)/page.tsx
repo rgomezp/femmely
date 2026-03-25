@@ -28,7 +28,7 @@ export default async function HomePage() {
               Your guide to <span className="font-normal italic">femme</span> fashion
             </h1>
             <p className="font-body mt-6 max-w-md text-lg leading-relaxed text-on-surface-variant">
-              Browse styled looks, tap through to Amazon, and use our sizing translator when you need a women&apos;s
+              Browse styled looks and use our sizing translator when you need a women&apos;s
               size starting point from your measurements.
             </p>
             <Link
